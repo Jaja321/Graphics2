@@ -17,6 +17,7 @@ public class RayTracer {
 
 	public int imageWidth;
 	public int imageHeight;
+	public Scene scene;
 
 	/**
 	 * Runs the ray tracer. Takes scene file, output image file and image size as input.
@@ -66,6 +67,7 @@ public class RayTracer {
 	 */
 	public void parseScene(String sceneFileName) throws IOException, RayTracerException
 	{
+		this.scene = new Scene();
 		FileReader fr = new FileReader(sceneFileName);
 
 		BufferedReader r = new BufferedReader(fr);
@@ -90,64 +92,64 @@ public class RayTracer {
 				// Split according to white space characters:
 				String[] params = line.substring(3).trim().toLowerCase().split("\\s+");
 
-				if (code.equals("cam"))
-				{
-                                        // Add code here to parse camera parameters
+				if (code.equals("cam"))	{
+					Camera cam = Camera.parseCamera(params);
+					this.scene.setCamera(cam);
 
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
 				}
-				else if (code.equals("set"))
-				{
-                                        // Add code here to parse general settings parameters
+				else if (code.equals("set")){
+					this.scene.setProperties(params);
 
 					System.out.println(String.format("Parsed general settings (line %d)", lineNum));
 				}
-				else if (code.equals("mtl"))
-				{
-                                        // Add code here to parse material parameters
+				else if (code.equals("mtl")){
+					Material material = Material.parseMaterial(params);
+					
+					this.scene.addMaterial(material);
 
 					System.out.println(String.format("Parsed material (line %d)", lineNum));
 				}
-				else if (code.equals("sph"))
-				{
-                                        // Add code here to parse sphere parameters
-
-                                        // Example (you can implement this in many different ways!):
-					                    // Sphere sphere = new Sphere();
-                                        // sphere.setCenter(params[0], params[1], params[2]);
-                                        // sphere.setRadius(params[3]);
-                                        // sphere.setMaterial(params[4]);
+				else if (code.equals("sph")){
+					Surface sphere = Sphere.paresSphere(params);
+					
+					this.scene.addSurface(sphere);
 
 					System.out.println(String.format("Parsed sphere (line %d)", lineNum));
 				}
-				else if (code.equals("pln"))
-				{
-                                        // Add code here to parse plane parameters
+				else if (code.equals("pln")){
+					Surface plane = Plane.paresPlane(params);
+
+					this.scene.addSurface(plane);
 
 					System.out.println(String.format("Parsed plane (line %d)", lineNum));
 				}
-				else if (code.equals("trg"))
-				{
-                                        // Add code here to parse cylinder parameters
+				else if (code.equals("trg")){
+					Surface triangle = Triangle.paresTriangle(params);
+
+					this.scene.addSurface(triangle);
 
 					System.out.println(String.format("Parsed cylinder (line %d)", lineNum));
 				}
-				else if (code.equals("lgt"))
-				{
-                                        // Add code here to parse light parameters
+				else if (code.equals("lgt")){
+					Light light = Light.parseLight(params);
+					
+					this.scene.addLight(light);
 
 					System.out.println(String.format("Parsed light (line %d)", lineNum));
 				}
-				else
-				{
+				else{
 					System.out.println(String.format("ERROR: Did not recognize object: %s (line %d)", code, lineNum));
 				}
 			}
 		}
+		if(!this.scene.successfulParse()){
+			String msg = "Error! scene is invalid";
+			r.close();
+			throw new RayTracerException(msg);
+		}
 
-                // It is recommended that you check here that the scene is valid,
-                // for example camera settings and all necessary materials were defined.
-
+		r.close();
 		System.out.println("Finished parsing scene file " + sceneFileName);
 
 	}
@@ -225,6 +227,9 @@ public class RayTracer {
 	}
 
 	public static class RayTracerException extends Exception {
+		
+		static final long serialVersionUID = 1L;
+		
 		public RayTracerException(String msg) {  super(msg); }
 	}
 

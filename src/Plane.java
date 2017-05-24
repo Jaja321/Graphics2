@@ -3,14 +3,14 @@ public class Plane extends Surface {
 	Vector normal;
 	float offset;
 	
-	public Plane(Vector normal, float offset, Material material){
-		super(material);
+	public Plane(Vector normal, float offset, int index, Material material){
+		super(index, material);
 		this.normal = normal;
 		this.offset = offset;
 	}
 	
-	public Plane(float x, float y, float z, int offset, Material material){
-		this(new Vector(x,y,z),offset, material);
+	public Plane(Vector normal, float offset, int index){
+		this(normal,offset, index, null);
 	}
 	
 	public boolean RayIntersect(Ray ray){
@@ -37,6 +37,17 @@ public class Plane extends Surface {
 		}
 		
 		return t;
+	}
+
+	public static Plane paresPlane(String[] params) {
+		float normalX = Float.parseFloat(params[0]);
+		float normalY = Float.parseFloat(params[1]);
+		float normalZ = Float.parseFloat(params[2]);
+		Vector normal = new Vector(normalX, normalY, normalZ);
+		float offset = Float.parseFloat(params[3]);
+		int materialIndex = Integer.parseInt(params[4])-1;
+		
+		return new Plane(normal,offset, materialIndex);
 	}
 
 }

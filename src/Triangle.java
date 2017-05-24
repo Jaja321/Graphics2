@@ -3,19 +3,16 @@ public class Triangle extends Surface {
 	Vector vertex1, vertex2, vertex3;
 	Plane trianglePlane;
 	
-	//constructor using 3 vectors
-	public Triangle(Vector vertex1, Vector vertex2, Vector vertex3, Material material){
-		super(material);
+	public Triangle(Vector vertex1, Vector vertex2, Vector vertex3, int index, Material material){
+		super(index, material);
 		this.vertex1 = vertex1;
 		this.vertex2 = vertex2;
 		this.vertex3 = vertex3;
 		this.calculatePlane();
 	}
-	//constructor using 3 (x,y,z) coordinates representing vectors
-	public Triangle(float x1, float y1, float z1, float x2, float y2, 
-			float z2, float x3, float y3, float z3, Material material){
-		
-		this(new Vector(x1, y1, z1), new Vector(x2, y2, z2), new Vector(x3, y3, z3), material);
+
+	public Triangle(Vector vertex1, Vector vertex2, Vector vertex3, int index){
+		this(vertex1, vertex2, vertex3, index, null);
 	}
 	
 	private void calculatePlane(){
@@ -23,7 +20,7 @@ public class Triangle extends Surface {
 		Vector v = Vector.subtract(this.vertex3, this.vertex1);
 		Vector normal = Vector.cross(u, v);
 		float offset = Vector.dot(normal, this.vertex1);
-		this.trianglePlane = new Plane(normal, -offset, this.getMaterial());
+		this.trianglePlane = new Plane(normal, -offset, this.getMaterialIndex(), this.getMaterial());
 	}
 	
 	public boolean RayIntersect(Ray ray){
@@ -68,6 +65,26 @@ public class Triangle extends Surface {
 		}
 
 		return true;
+	}
+	public static Triangle paresTriangle(String[] params) {
+		float vertex1X = Float.parseFloat(params[0]);
+		float vertex1Y = Float.parseFloat(params[1]);
+		float vertex1Z = Float.parseFloat(params[2]);
+		Vector vertex1 = new Vector(vertex1X, vertex1Y, vertex1Z);
+
+		float vertex2X = Float.parseFloat(params[3]);
+		float vertex2Y = Float.parseFloat(params[4]);
+		float vertex2Z = Float.parseFloat(params[5]);
+		Vector vertex2 = new Vector(vertex2X, vertex2Y, vertex2Z);
+
+		float vertex3X = Float.parseFloat(params[6]);
+		float vertex3Y = Float.parseFloat(params[7]);
+		float vertex3Z = Float.parseFloat(params[8]);
+		Vector vertex3 = new Vector(vertex3X, vertex3Y, vertex3Z);
+		
+		int materialIndex = Integer.parseInt(params[9])-1;
+
+		return new Triangle(vertex1, vertex2, vertex3, materialIndex);
 	}
 
 }

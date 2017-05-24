@@ -1,9 +1,20 @@
+import java.awt.Color;
 
 public abstract class Surface {
 	private Material material;
+	private int materialIndex;
 	
-	public Surface(Material material){
+	public Surface(int index){
+		this.materialIndex = index;
+	}
+	
+	public Surface(int index, Material material){
+		this(index);
 		this.material = material;
+	}
+	
+	public int getMaterialIndex(){
+		return this.materialIndex;
 	}
 	
 	public Material getMaterial() {
@@ -14,6 +25,9 @@ public abstract class Surface {
 		this.material = material;
 	}
 	
+	public Color getDiffuseColor(){
+		return this.material.getDiffuse();
+	}
 	public abstract boolean RayIntersect(Ray ray);
 	
 }

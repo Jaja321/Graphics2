@@ -15,5 +15,22 @@ public class Light {
 		this.radius = radius;
 	}
 	
+	public static Light parseLight(String[] params) {
+		float posX = Float.parseFloat(params[0]);
+		float posY = Float.parseFloat(params[1]);
+		float posZ = Float.parseFloat(params[2]);
+		Vector position = new Vector(posX, posY, posZ);
+		
+		float colorR = Float.parseFloat(params[3]);
+		float colorG = Float.parseFloat(params[4]);
+		float colorB = Float.parseFloat(params[5]);
+		Color color = new Color(colorR, colorG, colorB);
+		
+		float specularIntensity = Float.parseFloat(params[6]); 
+		float shadowIntensity = Float.parseFloat(params[7]); 
+		float radius = Float.parseFloat(params[8]);
+
+		return new Light(position, color, specularIntensity, shadowIntensity, radius);
+	}
 	
 }

@@ -4,16 +4,16 @@ public class Sphere extends Surface {
 	float radius;
 	Vector NormalAtIntersect = null;
 	
-	public Sphere(Vector center, float radius, Material material){
-		super(material);
+	public Sphere(Vector center, float radius, int index, Material material){
+		super(index, material);
 		this.center = center;
 		this.radius = radius;
 	}
 	
-	public Sphere(float x, float y, float z, float radius, Material material){
-		this(new Vector(x,y,z),radius,material);
-	}
-	
+	public Sphere(Vector center, float radius, int index){
+		this(center, radius, index, null);
+		}
+		
 	public boolean RayIntersect(Ray ray){
 
 		Vector vectorL = Vector.subtract(this.center, ray.getOrigin());
@@ -52,4 +52,17 @@ public class Sphere extends Surface {
 		Vector normal = diff.divide(diff.norm());
 		return normal;		
 	}
+
+	public static Sphere paresSphere(String[] params) {
+		float centerX = Float.parseFloat(params[0]);
+		float centerY = Float.parseFloat(params[1]);
+		float centerZ = Float.parseFloat(params[2]);
+		Vector center = new Vector(centerX, centerY, centerZ);
+		
+		float radius = Float.parseFloat(params[3]);
+		int materialIndex = Integer.parseInt(params[4])-1;
+
+		return new Sphere(center,radius, materialIndex);
+	}
+
 }
