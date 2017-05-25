@@ -1,9 +1,9 @@
 
 public class Camera {
 	Vector position, direction, up;
-	float screenDistance, screenWidth;
+	float screenDistance, screenWidth, screenHeight;
 	
-	public Camera(Vector position, Vector lookat, Vector up, float screenDistance, float screenWidth) {
+	public Camera(Vector position, Vector lookat, Vector up, float screenDistance, float screenWidth, float screenHeight) {
 		this.position = position;
 		this.direction= Vector.subtract(lookat, position);
 		//Fixing up vector:
@@ -14,9 +14,10 @@ public class Camera {
 		
 		this.screenDistance = screenDistance;
 		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
 	}
 	
-	public static Camera parseCamera(String[] params){
+	public static Camera parseCamera(String[] params, float aspectRatio){
 		float posX = Float.parseFloat(params[0]);
 		float posY = Float.parseFloat(params[1]);
 		float posZ = Float.parseFloat(params[2]);
@@ -34,8 +35,9 @@ public class Camera {
 		
 		float distance = Float.parseFloat(params[9]);
 		float width = Float.parseFloat(params[10]);
+		float height = width/aspectRatio;
 		
-		return new Camera(position, lookAt, upVector, distance, width);
+		return new Camera(position, lookAt, upVector, distance, width, height);
 	}
 	
 	

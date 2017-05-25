@@ -93,7 +93,7 @@ public class RayTracer {
 				String[] params = line.substring(3).trim().toLowerCase().split("\\s+");
 
 				if (code.equals("cam"))	{
-					Camera cam = Camera.parseCamera(params);
+					Camera cam = Camera.parseCamera(params,imageWidth/imageHeight);
 					this.scene.setCamera(cam);
 
 					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
