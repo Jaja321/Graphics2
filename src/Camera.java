@@ -6,7 +6,12 @@ public class Camera {
 	public Camera(Vector position, Vector lookat, Vector up, float screenDistance, float screenWidth) {
 		this.position = position;
 		this.direction= Vector.subtract(lookat, position);
-		this.up = up; //Need to fix up vector.
+		//Fixing up vector:
+		Vector temp=Vector.cross(direction, up);
+		temp=Vector.cross(direction, temp);
+		temp=temp.multiply(-1);
+		this.up = temp.divide(temp.norm());
+		
 		this.screenDistance = screenDistance;
 		this.screenWidth = screenWidth;
 	}
@@ -32,5 +37,7 @@ public class Camera {
 		
 		return new Camera(position, lookAt, upVector, distance, width);
 	}
+	
+	
 	
 }
