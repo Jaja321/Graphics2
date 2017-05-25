@@ -52,11 +52,12 @@ public class Camera {
 		return new Camera(position, lookAt, upVector, distance, width, height);
 	}
 
+	//Need to add super-sampling support.
 	public Vector getPixelPosition(int x, int y, int imageWidth, int imageHeight) {
 		float pixelHeight = screenHeight / imageHeight;
 		float pixelWidth = screenWidth / imageWidth;
-		Vector tempUp = up.multiply(pixelHeight * y + 0.5f * pixelHeight);
-		Vector tempRight = right.multiply(pixelWidth * x + 0.5f * pixelWidth);
+		Vector tempUp = up.multiply(pixelHeight * (y + 0.5f));
+		Vector tempRight = right.multiply(pixelWidth * (x + 0.5f));
 		Vector position = Vector.add(screenOrigin, tempUp);
 		position = Vector.add(position, tempRight);
 		return position;
