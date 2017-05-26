@@ -1,33 +1,40 @@
 package RayTracing;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Ray {
+	private static final float EPSILON = 1/10000;
 	private Vector origin;
 	private Vector dir;
-	private double t;
-	private Surface closestObject;
-	private Vector intersectionNormal;
 	
 	Ray(Vector origin, Vector dir){
-		this.origin = origin;
+		this.origin = origin.add(EPSILON);
 		this.dir = dir;
-		this.t = Double.MAX_VALUE;
-		this.closestObject = null;
-		this.intersectionNormal = null;
 	}
 	
 	Ray(float x, float y, float z, Vector dir){
 		this(new Vector(x,y,z), dir);
 	}
 	
-	public Vector getRayVector(){
-		return this.getRayVector(this.t);
+	public List<RayHit> rayIntersections(List<Surface> surfaces){
+		
+		List<RayHit> intersections = new ArrayList<RayHit>();
+		
+		for (Surface surface : surfaces){
+			RayHit hit = surface.RayIntersect(this);
+			if (hit != null){
+				intersections.add(hit);
+			}
+		}		
+		Collections.sort(intersections);
+		return intersections;
+
 	}
 	
 	public Vector getRayVector(double t){
-		if(t == Double.MAX_VALUE){
-			return null;
-		}
-		Vector tV = (this.dir).multiply((float)this.t);
+		Vector tV = this.dir.multiply((float)t);
 		Vector RayVector = Vector.add(this.origin, tV);
 		return RayVector;
 	}
@@ -47,30 +54,11 @@ public class Ray {
 	public void setDir(Vector dir) {
 		this.dir = dir;
 	}
-
-	public double getT() {
-		return t;
-	}
-
-	public void setT(double t) {
-		this.t = t;
-	}
-
-	public Surface getClosestObject() {
-		return closestObject;
-	}
-
-	public void setClosestObject(Surface closestObject) {
-		this.closestObject = closestObject;
-	}
-
-	public Vector getIntersectionNormal() {
-		return intersectionNormal;
-	}
-
-	public void setIntersectionNormal(Vector intersectionNormal) {
-		this.intersectionNormal = intersectionNormal;
-	}
 	
+
+	@Override
+	public String toString() {
+		return "Ray [origin=" + origin + ", dir=" + dir + "]";
+	}	
 	
 }
