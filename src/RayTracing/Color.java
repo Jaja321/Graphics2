@@ -19,6 +19,10 @@ public class Color {
 		return this.B;
 	}
 	
+	public static Color getBlack(){
+		return new Color(0,0,0);
+	}
+	
 	public Color addColor(Color other){
 		return new Color(this.R + other.R, this.G + other.G, this.B + other.B);
 	}
@@ -51,6 +55,21 @@ public class Color {
 		}else{
 			return (byte) (this.B * 255);
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj){
+			return true;
+		}
+		if (obj == null){
+			return false;
+		}
+		if (getClass() != obj.getClass()){
+			return false;
+		}
+		Color other = (Color) obj;
+		return (this.R == other.R && this.G == other.G && this.B == other.B);
 	}
 
 }
