@@ -1,8 +1,8 @@
 package RayTracing;
 
 public class Plane extends Surface {
-	Vector normal;
-	float offset;
+	private Vector normal;
+	private float offset;
 
 	public Plane(Vector normal, float offset, int index, Material material) {
 		super(index, material);
@@ -14,21 +14,20 @@ public class Plane extends Surface {
 		this(normal, offset, index, null);
 	}
 
-	public boolean RayIntersect(Ray ray) {
+	public RayHit RayIntersect(Ray ray) {
 		double t = getIntersectionT(ray);
 
 		if (t > 0) {
-			if (t < ray.getT()) {
-				ray.setT(t);
-				ray.setClosestObject(this);
-				if(Vector.dot(this.normal, ray.getDir())>0)
-					ray.setIntersectionNormal(this.normal);
-				else
-					ray.setIntersectionNormal(this.normal.multiply(-1));
+			Vector intersectionNormal;
+			if(Vector.dot(this.normal, ray.getDir())>0)
+				intersectionNormal = this.normal;
+			else{
+				intersectionNormal = this.normal.multiply(-1);
 			}
-			return true;
-		} else
-			return false;
+			return new RayHit(t, this, intersectionNormal);
+		} else {
+			return null;
+		}
 	}
 
 	public double getIntersectionT(Ray ray) {

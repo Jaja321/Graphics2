@@ -1,9 +1,9 @@
 package RayTracing;
 
 public class Sphere extends Surface {
-	Vector center;
-	float radius;
-	Vector NormalAtIntersect = null;
+	private Vector center;
+	private float radius;
+	private Vector NormalAtIntersect = null;
 	
 	public Sphere(Vector center, float radius, int index, Material material){
 		super(index, material);
@@ -15,16 +15,17 @@ public class Sphere extends Surface {
 		this(center, radius, index, null);
 		}
 		
-	public boolean RayIntersect(Ray ray){
-
+	public RayHit RayIntersect(Ray ray){
+		this.NormalAtIntersect = null;
+		
 		Vector vectorL = Vector.subtract(this.center, ray.getOrigin());
 		float tca = Vector.dot(vectorL, ray.getDir());
 		if (tca < 0){
-			return false;
+			return null;
 		}
 		float dSquare = Vector.dot(vectorL, vectorL) - (tca*tca);
 		if(dSquare > this.radius*this.radius){
-			return false;
+			return null;
 		}
 		double thc = Math.sqrt(this.radius*this.radius - dSquare);
 		
@@ -37,16 +38,14 @@ public class Sphere extends Surface {
 		}else{
 			t = Math.min(t1, t2);
 		}
-		if(t==0)
-			return false;
-		if(t < ray.getT()){
-			ray.setT(t);
-			ray.setClosestObject(this);
-			Vector RayVector = ray.getRayVector();
-			Vector intersectionNormal = this.calculateNormal(RayVector);
-			ray.setIntersectionNormal(intersectionNormal);
+		if(t==0){
+			return null;
 		}
-		return true;
+
+		Vector RayVector = ray.getRayVector(t);
+		Vector intersectionNormal = this.calculateNormal(RayVector);
+		
+		return new RayHit(t, this, intersectionNormal);
 	}
 	
 	public Vector calculateNormal(Vector ray){
@@ -66,5 +65,10 @@ public class Sphere extends Surface {
 
 		return new Sphere(center,radius, materialIndex);
 	}
+
+	public Vector getNormalAtIntersect() {
+		return NormalAtIntersect;
+	}
+
 
 }

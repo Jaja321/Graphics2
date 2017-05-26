@@ -1,8 +1,8 @@
 package RayTracing;
 
 public class Triangle extends Surface {
-	Vector vertex1, vertex2, vertex3;
-	Plane trianglePlane;
+	private Vector vertex1, vertex2, vertex3;
+	private Plane trianglePlane;
 	
 	public Triangle(Vector vertex1, Vector vertex2, Vector vertex3, int index, Material material){
 		super(index, material);
@@ -24,23 +24,18 @@ public class Triangle extends Surface {
 		this.trianglePlane = new Plane(normal, -offset, this.getMaterialIndex(), this.getMaterial());
 	}
 	
-	public boolean RayIntersect(Ray ray){
-		double t = (this.trianglePlane).getIntersectionT(ray);
-		if (t < 0){
-			return false;
+	public RayHit RayIntersect(Ray ray){
+		RayHit hit = this.trianglePlane.RayIntersect(ray);
+		if(hit == null){
+			return null;
 		}
-
-		Vector intersectPoint = ray.getRayVector(t);
+		
+		Vector intersectPoint = ray.getRayVector(hit.getDist());
 		if(!this.isPointInTriangle(intersectPoint)){
-			return false;
+			return null;
 		}
 		
-		if(t < ray.getT()){
-			ray.setT(t);
-			ray.setClosestObject(this);
-		}
-		
-		return true;
+		return new RayHit(hit.getDist(), this, hit.getIntersectionNormal());
 		
 	}
 	
