@@ -36,7 +36,8 @@ public class Sphere extends Surface {
 		}else{
 			t = Math.min(t1, t2);
 		}
-		
+		if(t==0)
+			return false;
 		if(t < ray.getT()){
 			ray.setT(t);
 			ray.setClosestObject(this);

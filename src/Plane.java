@@ -16,7 +16,7 @@ public class Plane extends Surface {
 	public boolean RayIntersect(Ray ray) {
 		double t = getIntersectionT(ray);
 
-		if (t >= 0) {
+		if (t > 0) {
 			if (t < ray.getT()) {
 				ray.setT(t);
 				ray.setClosestObject(this);
