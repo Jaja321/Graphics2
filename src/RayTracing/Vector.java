@@ -1,3 +1,4 @@
+package RayTracing;
 
 public class Vector {
 	private float x, y, z;

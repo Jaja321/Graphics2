@@ -1,18 +1,14 @@
-import java.awt.Color;
+package RayTracing;
+
 import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.color.*;
+import java.awt.image.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -69,27 +65,27 @@ public class RayTracer {
 
 	public Color getRayColor(Ray ray) {
 		boolean noIntersect = true;
-		for (Surface surface : scene.surfaces) {
+		for (Surface surface : this.scene.getSurfaces()) {
 			if (surface.RayIntersect(ray))
 				noIntersect = false;
 		}
 		if (noIntersect)
-			return scene.background;
+			return this.scene.getBackground();
 		Surface surface = ray.getClosestObject();
 		Material material = surface.getMaterial();
 		Color totalLight = new Color(0, 0, 0);
 
-		for (Light light : scene.lights) {
+		for (Light light : this.scene.getLights()) {
 			Color lightColor = new Color(0, 0, 0);
 
 			// Calculate diffuse component:
 			Vector lightDirection = Vector.subtract(light.position, ray.getRayVector());
 			float lightDistance = lightDirection.norm();
 			lightDirection = lightDirection.divide(lightDistance);
-			Color lightDiffuse = multiplyColors(material.getDiffuse(), light.color);
+			Color lightDiffuse = material.getDiffuse().multiplyColor(light.color);
 			float cos = Math.abs(Vector.dot(lightDirection, ray.getIntersectionNormal()));
-			lightDiffuse = multiplyColor(lightDiffuse, cos);
-			lightColor = addColors(lightColor, lightDiffuse);
+			lightDiffuse = lightDiffuse.multiplyColor(cos);
+			lightColor = lightColor.addColor(lightDiffuse);
 
 			// Calculate specular component:
 			float temp = Vector.dot(lightDirection, ray.getIntersectionNormal());
@@ -98,15 +94,15 @@ public class RayTracer {
 			lightReflection = Vector.subtract(lightReflection, lightDirection);
 			Vector viewDirection = ray.getDir().multiply(-1);
 			cos = Math.abs(Vector.dot(lightReflection, viewDirection));
-			Color lightSpecular = multiplyColors(material.getSpecular(), light.color);
-			lightSpecular = multiplyColor(lightSpecular, (float) Math.pow(cos, material.getPhong()));
-			lightSpecular = multiplyColor(lightSpecular, light.specular);
-			lightColor = addColors(lightColor, lightSpecular);
+			Color lightSpecular = material.getSpecular().multiplyColor(light.color);
+			lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, material.getPhong()));
+			lightSpecular = lightSpecular.multiplyColor(light.specular);
+			lightColor = lightColor.addColor(lightSpecular);
 
 			// Check if light is obstructed and add shadows:
 			Ray lightRay = new Ray(ray.getRayVector(), lightDirection);
 			boolean intersect = false;
-			for (Surface surf : scene.surfaces) {
+			for (Surface surf : this.scene.getSurfaces()) {
 				if (surf.RayIntersect(lightRay)) {
 					float intersectDistance = (float) lightRay.getT();
 					if (intersectDistance < lightDistance) {
@@ -116,9 +112,9 @@ public class RayTracer {
 				}
 			}
 			if (intersect)
-				lightColor = multiplyColor(lightColor, 1 - light.shadow);
+				lightColor = lightColor.multiplyColor(1 - light.shadow);
 
-			totalLight = addColors(totalLight, lightColor);
+			totalLight = totalLight.addColor(lightColor);
 		}
 		// totalDiffuse=multiplyColors(totalDiffuse, material.getDiffuse());
 		// return material.getDiffuse();
@@ -224,18 +220,19 @@ public class RayTracer {
 		//
 		// Each of the red, green and blue components should be a byte, i.e.
 		// 0-255
+		Vector cameraPos = this.scene.getCamera().position;
 		for (int x = 0; x < this.imageWidth; x++) {
 			for (int y = 0; y < this.imageHeight; y++) {
-				Vector pixelPos = scene.camera.getPixelPosition(x, y, this.imageWidth, this.imageHeight);
-				Vector rayDir = Vector.subtract(pixelPos, scene.camera.position);
+				Vector pixelPos = this.scene.getCamera().getPixelPosition(x, y, this.imageWidth, this.imageHeight);
+				Vector rayDir = Vector.subtract(pixelPos, cameraPos);
 				rayDir = rayDir.divide(rayDir.norm());
-				Ray ray = new Ray(scene.camera.position, rayDir);
+				Ray ray = new Ray(cameraPos, rayDir);
 
 				Color color = getRayColor(ray);
 
-				rgbData[(y * this.imageWidth + x) * 3] = (byte) color.getRed();
-				rgbData[(y * this.imageWidth + x) * 3 + 1] = (byte) color.getGreen();
-				rgbData[(y * this.imageWidth + x) * 3 + 2] = (byte) color.getBlue();
+				rgbData[(y * this.imageWidth + x) * 3] = color.getRedByte();
+				rgbData[(y * this.imageWidth + x) * 3 + 1] = color.getGreenByte();
+				rgbData[(y * this.imageWidth + x) * 3 + 2] = color.getBlueByte();
 
 			}
 		}
@@ -297,32 +294,5 @@ public class RayTracer {
 			super(msg);
 		}
 	}
-
-	// Color methods:
-	public static Color addColors(Color a, Color b) {
-		return new Color(limit(a.getRed() + b.getRed()), limit(a.getGreen() + b.getGreen()),
-				limit(a.getBlue() + b.getBlue()));
-	}
-
-	public static Color multiplyColors(Color a, Color b) {
-		int red = (int) (a.getRed() * (b.getRed() / 255f));
-		int green = (int) (a.getGreen() * (b.getGreen() / 255f));
-		int blue = (int) (a.getBlue() * (b.getBlue() / 255f));
-		return new Color(limit(red), limit(green), limit(blue));
-	}
-
-	public static Color multiplyColor(Color a, float scalar) {
-		return new Color(limit((int) (a.getRed() * scalar)), limit((int) (a.getGreen() * scalar)),
-				limit((int) (a.getBlue() * scalar)));
-	}
-
-	public static int limit(int num) {
-		if (num < 0)
-			return 0;
-		else if (num > 255)
-			return 255;
-		else
-			return num;
-	}
-
+	
 }

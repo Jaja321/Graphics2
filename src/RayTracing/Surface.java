@@ -1,4 +1,4 @@
-import java.awt.Color;
+package RayTracing;
 
 public abstract class Surface {
 	private Material material;

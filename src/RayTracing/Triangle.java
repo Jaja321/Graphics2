@@ -1,3 +1,4 @@
+package RayTracing;
 
 public class Triangle extends Surface {
 	Vector vertex1, vertex2, vertex3;

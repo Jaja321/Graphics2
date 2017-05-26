@@ -1,3 +1,4 @@
+package RayTracing;
 
 public class Sphere extends Surface {
 	Vector center;

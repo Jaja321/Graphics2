@@ -1,3 +1,4 @@
+package RayTracing;
 
 public class Ray {
 	private Vector origin;

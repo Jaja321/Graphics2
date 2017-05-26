@@ -1,3 +1,4 @@
+package RayTracing;
 
 public class Camera {
 	Vector position, direction, up, right, screenOrigin;
@@ -61,6 +62,7 @@ public class Camera {
 		Vector tempRight = right.multiply(pixelWidth * (x + 0.5f));
 		Vector position = Vector.add(screenOrigin, tempUp);
 		position = Vector.add(position, tempRight);
+		
 		return position;
 	}
 

@@ -1,3 +1,4 @@
+package RayTracing;
 
 public class Plane extends Surface {
 	Vector normal;

@@ -1,4 +1,4 @@
-import java.awt.Color;
+package RayTracing;
 
 public class Light {
 	Vector position;

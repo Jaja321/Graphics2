@@ -1,16 +1,17 @@
+package RayTracing;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Color;
 
 public class Scene {
-	List<Material> materials = new ArrayList<Material>();
-	List<Surface> surfaces = new ArrayList<Surface>();
-	List<Light> lights = new ArrayList<Light>();
-	Camera camera = null;
-	Color background = null;
-	int shadowRays = -1;
-	int maxRecursion = -1;
-	int superSampling = -1;
+	private List<Material> materials = new ArrayList<Material>();
+	private List<Surface> surfaces = new ArrayList<Surface>();
+	private List<Light> lights = new ArrayList<Light>();
+	private Camera camera = null;
+	private Color background = null;
+	private int shadowRays = -1;
+	private int maxRecursion = -1;
+	private int superSampling = -1;
 	
 	public void setProperties(String[] params){
 		float colorR = Float.parseFloat(params[0]);
@@ -29,7 +30,7 @@ public class Scene {
 	public void addMaterial(Material material) {
 		this.materials.add(material);
 	}
-	public List<Surface> getObjects() {
+	public List<Surface> getSurfaces() {
 		return surfaces;
 	}
 	public void addSurface(Surface surface) {

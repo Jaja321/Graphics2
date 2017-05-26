@@ -1,8 +1,8 @@
-import java.awt.Color;
+package RayTracing;
 
 public class Material {
-	Color diffuse, specular, reflection;
-	float phong, transparency;
+	private Color diffuse, specular, reflection;
+	private float phong, transparency;
 	
 	public Material(Color diffuse, Color specular, Color reflection, float phong, float trans) {
 		this.diffuse = diffuse;
