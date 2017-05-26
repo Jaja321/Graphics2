@@ -12,11 +12,9 @@ public class Vector {
 	public float getX() {
 		return this.x;
 	}
-
 	public float getY() {
 		return this.y;
 	}
-
 	public float getZ() {
 		return this.z;
 	}
@@ -29,6 +27,11 @@ public class Vector {
 	// Return the sum of vectors a and b.
 	public static Vector add(Vector a, Vector b) {
 		return new Vector(a.x + b.x, a.y + b.y, a.z + b.z);
+	}
+	
+	// adds scalar to this vector.
+	public Vector add(float scalar) {
+		return new Vector(scalar + this.x, scalar + this.y, scalar + this.z);
 	}
 
 	// Return the subtraction of vectors a and b.
