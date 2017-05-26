@@ -24,20 +24,11 @@ public class Scene {
 		this.superSampling = Integer.parseInt(params[5]);
 	}
 
-	public List<Material> getMaterials() {
-		return materials;
-	}
 	public void addMaterial(Material material) {
 		this.materials.add(material);
 	}
-	public List<Surface> getSurfaces() {
-		return surfaces;
-	}
 	public void addSurface(Surface surface) {
 		this.surfaces.add(surface);
-	}
-	public List<Light> getLights() {
-		return lights;
 	}
 	public void addLight (Light light) {
 		this.lights.add(light);
@@ -48,26 +39,102 @@ public class Scene {
 	public void setCamera(Camera camera) {
 		this.camera = camera;
 	}
-	public Color getBackground() {
-		return background;
-	}
-	public void setBackground(Color background) {
-		this.background = background;
-	}
-	public int getShadowRays() {
-		return shadowRays;
-	}
-	public void setShadowRays(int shadowRays) {
-		this.shadowRays = shadowRays;
-	}
-	public int getMaxRecursion() {
-		return maxRecursion;
-	}
-	public void setMaxRecursion(int maxRecursion) {
-		this.maxRecursion = maxRecursion;
-	}
 	public Material getSurfaceMaterial(int materialNum){
 		return this.materials.get(materialNum);
+	}
+	
+	public Color getColor(Ray ray) {
+		List<RayHit> intersections = ray.rayIntersections(this.surfaces);
+
+		//ray didn't hit anything, return background
+		if (intersections.size() == 0){
+			return this.background;
+		}		
+
+		Color color = getSurfaceColor(ray, intersections, 0);
+		
+		return color;
+	}
+	
+	private Color getSurfaceColor(Ray ray, List<RayHit> surfaces, int level){
+		if (level > surfaces.size()-1 || level > this.maxRecursion-1){
+			return this.background;
+		}
+		
+		RayHit intersect = surfaces.get(level);
+		Surface surface = intersect.getSurface();
+		Color totalColor = Color.getBlack();
+		
+		//calculate transparency (background) color
+		if (surface.getTransparency() > 0){
+			Color backgroundColor = getSurfaceColor(ray, surfaces, level+1);
+			backgroundColor.multiplyColor(surface.getTransparency());
+			totalColor.addColor(backgroundColor);
+		}
+
+		//calculate diffuse and specular
+		for (Light light : this.lights) {
+			Color lightColor = Color.getBlack();
+
+			Vector lightDirection = Vector.subtract(light.getPosition(), ray.getRayVector(intersect.getDist()));
+			float lightDistance = lightDirection.norm();
+			lightDirection = lightDirection.divide(lightDistance);
+			Color lightDiffuse = surface.getDiffuse().multiplyColor(light.getColor());
+			float cos = Math.abs(Vector.dot(lightDirection, intersect.getIntersectionNormal()));
+			lightDiffuse = lightDiffuse.multiplyColor(cos);
+			lightColor = lightColor.addColor(lightDiffuse);
+
+			float temp = Vector.dot(lightDirection, intersect.getIntersectionNormal());
+			Vector lightReflection = intersect.getIntersectionNormal().multiply(temp);
+			lightReflection = lightReflection.multiply(2);
+			lightReflection = Vector.subtract(lightReflection, lightDirection);
+			Vector viewDirection = ray.getDir().multiply(-1);
+			cos = Math.abs(Vector.dot(lightReflection, viewDirection));
+			Color lightSpecular = surface.getSpecular().multiplyColor(light.getColor());
+			lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
+			lightSpecular = lightSpecular.multiplyColor(light.getSpecular());
+			lightColor = lightColor.addColor(lightSpecular);
+			
+			lightColor.multiplyColor(1-surface.getTransparency());
+
+			// Check if light is obstructed and add shadows:
+			Ray lightRay = new Ray(ray.getRayVector(intersect.getDist()), lightDirection);
+			boolean intersection = false;
+			for (Surface surf : this.surfaces) {
+				RayHit lightHit = surf.RayIntersect(lightRay);
+				if (lightHit != null) {
+					float intersectDistance = (float) lightHit.getDist();
+					if (intersectDistance < lightDistance) {
+						intersection = true;
+						break;
+					}
+				}
+			}
+			if (intersection){
+				lightColor = lightColor.multiplyColor(1 - light.getShadow());
+			}
+			
+			totalColor = totalColor.addColor(lightColor);
+		}
+		
+		//calculate reflection color
+		Color materialReflection = surface.getReflection();
+		if(!materialReflection.equals(Color.getBlack())){
+			Color reflectionColor;
+			if(level == this.maxRecursion-1){
+				reflectionColor = this.background;
+			}else{
+				Vector reflectionDirection = surface.getReflectionVector(ray.getDir(),
+						intersect.getIntersectionNormal());
+				Ray reflectionRay = new Ray(ray.getRayVector(intersect.getDist()), reflectionDirection);	
+				List<RayHit> ReflectionIntersections = reflectionRay.rayIntersections(this.surfaces);
+				reflectionColor = getSurfaceColor(reflectionRay, ReflectionIntersections, level+1);
+				reflectionColor.multiplyColor(surface.getReflection());
+			}
+			totalColor.addColor(reflectionColor);
+		}
+		
+		return totalColor;
 	}
 
 	public boolean successfulParse() {
