@@ -15,42 +15,19 @@ public class Material {
 	public Color getDiffuse() {
 		return diffuse;
 	}
-
-	public void setDiffuse(Color diffuse) {
-		this.diffuse = diffuse;
-	}
-
 	public Color getSpecular() {
 		return specular;
 	}
-
-	public void setSpecular(Color specular) {
-		this.specular = specular;
-	}
-
 	public Color getReflection() {
 		return reflection;
 	}
-
-	public void setReflection(Color reflection) {
-		this.reflection = reflection;
-	}
-
 	public float getPhong() {
 		return phong;
 	}
-
-	public void setPhong(float phong) {
-		this.phong = phong;
-	}
-
 	public float getTransparency() {
 		return transparency;
 	}
 
-	public void setTransparency(float transparency) {
-		this.transparency = transparency;
-	}
 
 	public static Material parseMaterial(String[] params) {
 		float diffuseR = Float.parseFloat(params[0]);
