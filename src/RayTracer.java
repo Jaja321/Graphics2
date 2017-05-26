@@ -76,22 +76,33 @@ public class RayTracer {
 		if (noIntersect)
 			return scene.background;
 		Surface surface = ray.getClosestObject();
-		
 		Material material = surface.getMaterial();
 		Color totalDiffuse = new Color(0, 0, 0);
-		
+		Color totalSpecular = new Color(0, 0, 0);
 		for (Light light : scene.lights) {
+			//Calculate diffuse component:
 			Vector lightDirection = Vector.subtract(light.position, ray.getRayVector());
 			lightDirection = lightDirection.divide(lightDirection.norm());
 			Color lightDiffuse = multiplyColors(material.getDiffuse(), light.color);
-			float cos=Math.abs(Vector.dot(lightDirection, ray.getIntersectionNormal()));
-			
+			float cos=Math.abs(Vector.dot(lightDirection, ray.getIntersectionNormal()));	
 			lightDiffuse = multiplyColor(lightDiffuse, cos);
 			totalDiffuse=addColors(totalDiffuse, lightDiffuse);
+			
+			//Calculate specular component:
+			float temp=Vector.dot(lightDirection, ray.getIntersectionNormal());
+			Vector lightReflection=ray.getIntersectionNormal().multiply(temp);
+			lightReflection=lightReflection.multiply(2);
+			lightReflection=Vector.subtract(lightReflection, lightDirection);
+			Vector viewDirection=ray.getDir().multiply(-1);
+			cos=Math.abs(Vector.dot(lightReflection, viewDirection));
+			Color lightSpecular=multiplyColors(material.getSpecular(),light.color);
+			lightSpecular=multiplyColor(lightSpecular,(float)Math.pow(cos, material.getPhong()));
+			lightSpecular=multiplyColor(lightSpecular, light.specular);
+			totalSpecular=addColors(totalSpecular, lightSpecular);
 		}
 		//totalDiffuse=multiplyColors(totalDiffuse, material.getDiffuse());
 		//return material.getDiffuse();
-		return totalDiffuse;
+		return addColors(totalDiffuse,totalSpecular);
 	}
 
 	/**
@@ -279,13 +290,6 @@ public class RayTracer {
 		int blue=(int)(a.getBlue()*(b.getBlue()/255f));
 		return new Color(limit(red), limit(green), limit(blue));
 	}
-	public static Color multiplyColors2(Color a, Color b) {
-		float red=(a.getRed())*(b.getRed());
-		float green=(a.getGreen())*(b.getGreen());
-		float blue=(a.getBlue())*(b.getBlue());
-		return new Color(red, green, blue);
-	}
-
 	public static Color multiplyColor(Color a, float scalar) {
 		return new Color(limit((int)(a.getRed() * scalar)), limit((int)(a.getGreen() *scalar)),
 				limit((int)(a.getBlue() *scalar)));
