@@ -69,9 +69,10 @@ public class RayTracer {
 
 	public Color getRayColor(Ray ray) {
 		boolean noIntersect = true;
-		for (Surface surface : scene.surfaces)
+		for (Surface surface : scene.surfaces){
 			if (surface.RayIntersect(ray))
 				noIntersect = false;
+		}
 		if (noIntersect)
 			return scene.background;
 		Surface surface = ray.getClosestObject();
@@ -83,13 +84,13 @@ public class RayTracer {
 			Vector lightDirection = Vector.subtract(light.position, ray.getRayVector());
 			lightDirection = lightDirection.divide(lightDirection.norm());
 			Color lightDiffuse = multiplyColors(material.getDiffuse(), light.color);
-
-			float cos=Vector.dot(lightDirection, ray.getIntersectionNormal());
+			float cos=Math.abs(Vector.dot(lightDirection, ray.getIntersectionNormal()));
 			
 			lightDiffuse = multiplyColor(lightDiffuse, cos);
 			totalDiffuse=addColors(totalDiffuse, lightDiffuse);
 		}
-		totalDiffuse=multiplyColors(totalDiffuse, material.diffuse);
+		//totalDiffuse=multiplyColors(totalDiffuse, material.getDiffuse());
+		//return material.getDiffuse();
 		return totalDiffuse;
 	}
 
@@ -182,7 +183,6 @@ public class RayTracer {
 
 		// Create a byte array to hold the pixel data:
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
-		System.out.println("Hello");
 		// Put your ray tracing code here!
 		//
 		// Write pixel color values in RGB format to rgbData:
@@ -197,7 +197,6 @@ public class RayTracer {
 			for(int y=0;y<this.imageHeight;y++){
 				Vector pixelPos=scene.camera.getPixelPosition(x, y, this.imageWidth, this.imageHeight);
 				Vector rayDir=Vector.subtract(pixelPos, scene.camera.position);
-				
 				rayDir=rayDir.divide(rayDir.norm());
 				Ray ray=new Ray(scene.camera.position, rayDir);
 				
@@ -275,8 +274,16 @@ public class RayTracer {
 	}
 
 	public static Color multiplyColors(Color a, Color b) {
-		return new Color(limit(a.getRed() * b.getRed()), limit(a.getGreen() * b.getGreen()),
-				limit(a.getBlue() * b.getBlue()));
+		int red=(int)(a.getRed()*(b.getRed()/255f));
+		int green=(int)(a.getGreen()*(b.getGreen()/255f));
+		int blue=(int)(a.getBlue()*(b.getBlue()/255f));
+		return new Color(limit(red), limit(green), limit(blue));
+	}
+	public static Color multiplyColors2(Color a, Color b) {
+		float red=(a.getRed())*(b.getRed());
+		float green=(a.getGreen())*(b.getGreen());
+		float blue=(a.getBlue())*(b.getBlue());
+		return new Color(red, green, blue);
 	}
 
 	public static Color multiplyColor(Color a, float scalar) {

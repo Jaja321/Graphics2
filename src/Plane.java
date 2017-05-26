@@ -27,7 +27,7 @@ public class Plane extends Surface {
 			}
 			return true;
 		} else
-			return true;
+			return false;
 	}
 
 	public double getIntersectionT(Ray ray) {
@@ -35,7 +35,7 @@ public class Plane extends Surface {
 		if (denominator == 0) {
 			return -1;
 		}
-		float numerator = -(Vector.dot(ray.getOrigin(), this.normal) + this.offset);
+		float numerator = -Vector.dot(ray.getOrigin(), this.normal) + this.offset;
 
 		double t = numerator / denominator;
 		if (t < 0) {

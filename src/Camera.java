@@ -12,7 +12,7 @@ public class Camera {
 		// Fixing up vector:
 		Vector temp = Vector.cross(direction, up);
 		temp = Vector.cross(direction, temp);
-		temp = temp.multiply(-1);
+		// temp = temp.multiply(-1);
 		this.up = temp.divide(temp.norm());
 
 		this.screenDistance = screenDistance;
@@ -20,8 +20,9 @@ public class Camera {
 		this.screenHeight = screenHeight;
 
 		// Calculate the bottom-left point of the screen:
-		right = Vector.cross(this.up, this.direction);
-		Vector left = right.multiply(-1);
+		Vector left = Vector.cross(this.up, this.direction);
+		right = left.multiply(-1);
+
 		Vector down = this.up.multiply(-1);
 		screenOrigin = Vector.add(position, direction.multiply(this.screenDistance));
 		screenOrigin = Vector.add(screenOrigin, left.multiply(this.screenWidth / 2));
@@ -52,7 +53,7 @@ public class Camera {
 		return new Camera(position, lookAt, upVector, distance, width, height);
 	}
 
-	//Need to add super-sampling support.
+	// Need to add super-sampling support.
 	public Vector getPixelPosition(int x, int y, int imageWidth, int imageHeight) {
 		float pixelHeight = screenHeight / imageHeight;
 		float pixelWidth = screenWidth / imageWidth;
