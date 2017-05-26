@@ -1,8 +1,8 @@
 package RayTracing;
 
 public class Camera {
-	Vector position, direction, up, right, screenOrigin;
-	float screenDistance, screenWidth, screenHeight;
+	private Vector position, direction, up, right, screenOrigin;
+	private float screenDistance, screenWidth, screenHeight;
 
 	public Camera(Vector position, Vector lookat, Vector up, float screenDistance, float screenWidth,
 			float screenHeight) {
@@ -22,13 +22,37 @@ public class Camera {
 
 		// Calculate the bottom-left point of the screen:
 		Vector left = Vector.cross(this.up, this.direction);
-		right = left.multiply(-1);
+		this.right = left.multiply(-1);
 
 		Vector down = this.up.multiply(-1);
 		screenOrigin = Vector.add(position, direction.multiply(this.screenDistance));
 		screenOrigin = Vector.add(screenOrigin, left.multiply(this.screenWidth / 2));
 		screenOrigin = Vector.add(screenOrigin, down.multiply(this.screenHeight / 2));
-
+	}
+	
+	public Vector getPosition() {
+		return position;
+	}
+	public Vector getDirection() {
+		return direction;
+	}
+	public Vector getUp() {
+		return up;
+	}
+	public Vector getRight() {
+		return right;
+	}
+	public Vector getScreenOrigin() {
+		return screenOrigin;
+	}
+	public float getScreenDistance() {
+		return screenDistance;
+	}
+	public float getScreenWidth() {
+		return screenWidth;
+	}
+	public float getScreenHeight() {
+		return screenHeight;
 	}
 
 	public static Camera parseCamera(String[] params, float aspectRatio) {

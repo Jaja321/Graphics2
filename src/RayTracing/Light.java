@@ -1,11 +1,11 @@
 package RayTracing;
 
 public class Light {
-	Vector position;
-	Color color;
-	float specular; //Specular intensity.
-	float shadow; //Shadow intensity.
-	float radius;
+	private Vector position;
+	private Color color;
+	private float specular; //Specular intensity.
+	private float shadow; //Shadow intensity.
+	private float radius;
 	
 	public Light(Vector position, Color color, float specular, float shadow, float radius) {
 		this.position = position;
@@ -13,8 +13,28 @@ public class Light {
 		this.specular = specular;
 		this.shadow = shadow;
 		this.radius = radius;
-	}
+	}	
 	
+	public Vector getPosition() {
+		return position;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public float getSpecular() {
+		return specular;
+	}
+
+	public float getShadow() {
+		return shadow;
+	}
+
+	public float getRadius() {
+		return radius;
+	}
+
 	public static Light parseLight(String[] params) {
 		float posX = Float.parseFloat(params[0]);
 		float posY = Float.parseFloat(params[1]);
