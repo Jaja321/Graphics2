@@ -24,7 +24,8 @@ public class Plane extends Surface {
 			else{
 				intersectionNormal = this.normal.multiply(-1);
 			}
-			return new RayHit(t, this, intersectionNormal);
+			Vector intersectionPoint = ray.getRayVector(t);
+			return new RayHit(t, this, intersectionNormal, intersectionPoint);
 		} else {
 			return null;
 		}

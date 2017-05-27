@@ -44,8 +44,9 @@ public class Sphere extends Surface {
 
 		Vector RayVector = ray.getRayVector(t);
 		Vector intersectionNormal = this.calculateNormal(RayVector);
+		Vector intersectionPoint = ray.getRayVector(t);
 		
-		return new RayHit(t, this, intersectionNormal);
+		return new RayHit(t, this, intersectionNormal, intersectionPoint);
 	}
 	
 	public Vector calculateNormal(Vector ray){

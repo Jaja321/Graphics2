@@ -35,8 +35,7 @@ public class Triangle extends Surface {
 			return null;
 		}
 		
-		return new RayHit(hit.getDist(), this, hit.getIntersectionNormal());
-		
+		return new RayHit(hit.getDist(), this, hit.getIntersectionNormal(), hit.getIntersectionPoint());
 	}
 	
 	public boolean isPointInTriangle(Vector point){
