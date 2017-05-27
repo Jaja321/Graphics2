@@ -40,14 +40,6 @@ public abstract class Surface {
 		return this.material.getTransparency();
 	}
 	
-	public Vector getReflectionVector(Vector light, Vector normal) { 
-		Vector light2 = light.multiply(2);
-		Vector LN2 = Vector.multiply(light2,normal);
-		Vector multi = Vector.multiply(LN2, normal);
-		Vector R = Vector.subtract(multi, light);
-		return R; // R = (2L*N)N - L
-	}
-
 	public abstract RayHit RayIntersect(Ray ray);
 	
 }

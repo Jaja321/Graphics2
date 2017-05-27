@@ -91,18 +91,6 @@ public class Scene {
 		Surface surface = intersect.getSurface();
 		Color totalColor = Color.getBlack();
 
-		// calculate transparency (background) color
-		if (surface.getTransparency() > 0) {
-			Color backgroundColor;
-			if (level == 0) {
-				backgroundColor = this.background;
-			} else {
-				backgroundColor = getSurfaceColor(ray, surfaces, level - 1);
-			}
-			backgroundColor = backgroundColor.multiplyColor(surface.getTransparency());
-			totalColor = totalColor.addColor(backgroundColor);
-		}
-
 		// calculate diffuse and specular
 		for (Light light : this.lights) {
 			Color lightColor = Color.getBlack();
@@ -135,20 +123,37 @@ public class Scene {
 
 			totalColor = totalColor.addColor(lightColor);
 		}
+		
+		// calculate transparency (background) color
+		if (surface.getTransparency() > 0) {
+			Color backgroundColor;
+			if (level == 0) {
+				backgroundColor = this.background;
+			} else {
+				backgroundColor = getSurfaceColor(ray, surfaces, level - 1);
+			}
+			backgroundColor = backgroundColor.multiplyColor(surface.getTransparency());
+			totalColor = totalColor.addColor(backgroundColor);
+		}
 
 		// calculate reflection color
 		Color materialReflection = surface.getReflection();
 		if (!materialReflection.equals(Color.getBlack())) {
 			Color reflectionColor;
-			if (level == this.maxRecursion - 1) {
+			if (level == 0) {
 				reflectionColor = this.background;
 			} else {
-				Vector reflectionDirection = surface.getReflectionVector(ray.getDir(),
-						intersect.getIntersectionNormal());
+				Vector viewDirection = ray.getDir().multiply(-1);
+				float normalSign = (Vector.dot(viewDirection, intersect.getIntersectionNormal()) >= 0) ? 1 : -1;
+				Vector normal = intersect.getIntersectionNormal().multiply(normalSign);				
+				float reflectionScale = 2*Vector.dot(viewDirection, normal);
+				Vector reflectionDirection = normal.multiply(reflectionScale);
+				reflectionDirection = Vector.subtract(reflectionDirection, viewDirection);
+				 
 				Ray reflectionRay = new Ray(ray.getRayVector(intersect.getDist()), reflectionDirection);
 				List<RayHit> ReflectionIntersections = reflectionRay.rayIntersections(this.surfaces);
 				reflectionColor = getSurfaceColor(reflectionRay, ReflectionIntersections, level - 1);
-				reflectionColor.multiplyColor(surface.getReflection());
+				reflectionColor.multiplyColor(materialReflection);
 			}
 			totalColor.addColor(reflectionColor);
 		}
