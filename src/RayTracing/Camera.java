@@ -1,5 +1,7 @@
 package RayTracing;
 
+import java.util.Random;
+
 public class Camera {
 	private Vector position, direction, up, right, screenOrigin;
 	private float screenDistance, screenWidth, screenHeight;
@@ -79,11 +81,23 @@ public class Camera {
 	}
 
 	// Need to add super-sampling support.
-	public Vector getPixelPosition(int x, int y, int imageWidth, int imageHeight) {
+	public Vector getPixelPosition(int x, int y, int imageWidth, int imageHeight, int N, int i, int j) {
 		float pixelHeight = screenHeight / imageHeight;
 		float pixelWidth = screenWidth / imageWidth;
-		Vector tempUp = up.multiply(pixelHeight * (y + 0.5f));
-		Vector tempRight = right.multiply(pixelWidth * (x + 0.5f));
+		float subPixelSize=pixelHeight/N;
+		Random rand=new Random();
+		float rand_x=0;
+		float rand_y=0;
+		while(rand_x==0 || rand_x==0)
+			rand_x=rand.nextFloat();
+		while(rand_y==0 || rand_y==0)
+			rand_y=rand.nextFloat();
+		if(N==1){
+			rand_x=0.5f;
+			rand_y=0.5f;
+		}
+		Vector tempUp = up.multiply(pixelHeight * y+(j+rand_y)*subPixelSize);
+		Vector tempRight = right.multiply(pixelWidth * x +(i+rand_x)*subPixelSize);
 		Vector position = Vector.add(screenOrigin, tempUp);
 		position = Vector.add(position, tempRight);
 		

@@ -49,6 +49,26 @@ public class Scene {
 		return this.materials.get(materialNum);
 	}
 
+	public Color getPixelColor(int x, int y, int imageWidth, int imageHeight) {
+		float redSum = 0;
+		float greenSum = 0;
+		float blueSum = 0;
+		int N = this.superSampling;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				Vector pixelPos = this.camera.getPixelPosition(x, y, imageWidth, imageHeight, N, i, j);
+				Vector rayDir = Vector.subtract(pixelPos, this.camera.getPosition());
+				rayDir = rayDir.divide(rayDir.norm());
+				Ray ray = new Ray(this.camera.getPosition(), rayDir);
+				Color color = getColor(ray);
+				redSum += color.getRed();
+				greenSum += color.getGreen();
+				blueSum += color.getBlue();
+			}
+		}
+		return new Color(redSum / (N * N), greenSum / (N * N), blueSum / (N * N));
+	}
+
 	public Color getColor(Ray ray) {
 		List<RayHit> intersections = ray.rayIntersections(this.surfaces);
 
@@ -109,8 +129,8 @@ public class Scene {
 			lightColor.multiplyColor(1 - surface.getTransparency());
 
 			// Add soft shadows:
-			float softShadows=getSoftShadowsValue(light, intersect.getIntersectionPoint(),this.shadowRays);
-			if(softShadows==0)
+			float softShadows = getSoftShadowsValue(light, intersect.getIntersectionPoint(), this.shadowRays);
+			if (softShadows == 0)
 				lightColor = lightColor.multiplyColor((1 - light.getShadow()));
 
 			totalColor = totalColor.addColor(lightColor);
@@ -143,44 +163,44 @@ public class Scene {
 
 		Vector normal = Vector.subtract(lightPos, intersectPos);
 		normal = normal.divide(normal.norm());
-		Vector temp=new Vector(normal.getX()+1,normal.getY(),normal.getZ());
-		temp=temp.divide(temp.norm());
+		Vector temp = new Vector(normal.getX() + 1, normal.getY(), normal.getZ());
+		temp = temp.divide(temp.norm());
 		Vector up = Vector.cross(normal, temp);
 		Vector down = up.multiply(-1);
-		Vector right=Vector.cross(up, normal);
+		Vector right = Vector.cross(up, normal);
 		Vector left = right.multiply(-1);
 		Vector origin = Vector.add(lightPos, left.multiply(radius / 2f));
 
 		origin = Vector.add(origin, down.multiply(radius / 2f));
-		
-		Random rand=new Random();
-		int count=0;
-		for(int x=0;x<N;x++){
-			for(int y=0;y<N;y++){
-				float rand_x=rand.nextFloat();
-				float rand_y=rand.nextFloat();
-				Vector upComponent=up.multiply((y+rand_y)*pixelSize);
-				Vector rightComponent=right.multiply((x+rand_x)*pixelSize);
-				Vector pixelPos=Vector.add(origin, upComponent);
 
-				pixelPos=Vector.add(pixelPos, rightComponent);
-				
-				Vector rayDir=Vector.subtract(pixelPos, intersectPos);
-				float distance=rayDir.norm();
-				rayDir=rayDir.divide(rayDir.norm());			
-				Ray ray=new Ray(intersectPos, rayDir);
-				
-				List<RayHit> hits=ray.rayIntersections(this.surfaces);
-				//System.out.println(this.surfaces.size());
-				if(hits.size()==0)
+		Random rand = new Random();
+		int count = 0;
+		for (int x = 0; x < N; x++) {
+			for (int y = 0; y < N; y++) {
+				float rand_x = rand.nextFloat();
+				float rand_y = rand.nextFloat();
+				Vector upComponent = up.multiply((y + rand_y) * pixelSize);
+				Vector rightComponent = right.multiply((x + rand_x) * pixelSize);
+				Vector pixelPos = Vector.add(origin, upComponent);
+
+				pixelPos = Vector.add(pixelPos, rightComponent);
+
+				Vector rayDir = Vector.subtract(pixelPos, intersectPos);
+				float distance = rayDir.norm();
+				rayDir = rayDir.divide(rayDir.norm());
+				Ray ray = new Ray(intersectPos, rayDir);
+
+				List<RayHit> hits = ray.rayIntersections(this.surfaces);
+				// System.out.println(this.surfaces.size());
+				if (hits.size() == 0)
 					count++;
-				else{
-					if(hits.get(0).getDist()>distance)
+				else {
+					if (hits.get(0).getDist() > distance)
 						count++;
 				}
 			}
 		}
-		return ((float)count)/N;
+		return ((float) count) / N;
 	}
 
 	public boolean successfulParse() {

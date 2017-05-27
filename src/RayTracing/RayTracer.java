@@ -152,17 +152,9 @@ public class RayTracer {
 
 		// Create a byte array to hold the pixel data:
 		byte[] rgbData = new byte[this.imageWidth * this.imageHeight * 3];
-
-		Vector cameraPos = this.scene.getCamera().getPosition();
 		for (int x = 0; x < this.imageWidth; x++) {
 			for (int y = 0; y < this.imageHeight; y++) {
-				Vector pixelPos = this.scene.getCamera().getPixelPosition(x, y, this.imageWidth, this.imageHeight);
-				Vector rayDir = Vector.subtract(pixelPos, cameraPos);
-				rayDir = rayDir.divide(rayDir.norm());
-				Ray ray = new Ray(cameraPos, rayDir);
-
-				Color color = this.scene.getColor(ray);
-
+				Color color=this.scene.getPixelColor(x, y, this.imageWidth, this.imageHeight);
 				rgbData[(y * this.imageWidth + x) * 3] = color.getRedByte();
 				rgbData[(y * this.imageWidth + x) * 3 + 1] = color.getGreenByte();
 				rgbData[(y * this.imageWidth + x) * 3 + 2] = color.getBlueByte();
