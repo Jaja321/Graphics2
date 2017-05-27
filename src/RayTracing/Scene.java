@@ -51,25 +51,30 @@ public class Scene {
 			return this.background;
 		}		
 
-		Color color = getSurfaceColor(ray, intersections, 0);
+		Color color = getSurfaceColor(ray, intersections, this.maxRecursion);
 		
 		return color;
 	}
 	
 	private Color getSurfaceColor(Ray ray, List<RayHit> surfaces, int level){
-		if (level > surfaces.size()-1 || level > this.maxRecursion-1){
+		if ((this.maxRecursion - level) > surfaces.size()-1){
 			return this.background;
 		}
 		
-		RayHit intersect = surfaces.get(level);
+		RayHit intersect = surfaces.get(this.maxRecursion - level);
 		Surface surface = intersect.getSurface();
 		Color totalColor = Color.getBlack();
-		
+					
 		//calculate transparency (background) color
 		if (surface.getTransparency() > 0){
-			Color backgroundColor = getSurfaceColor(ray, surfaces, level+1);
-			backgroundColor.multiplyColor(surface.getTransparency());
-			totalColor.addColor(backgroundColor);
+			Color backgroundColor;
+			if(level == 0){
+				backgroundColor = this.background;
+			}else{
+				backgroundColor = getSurfaceColor(ray, surfaces, level-1);
+			}
+			backgroundColor = backgroundColor.multiplyColor(surface.getTransparency());
+			totalColor = totalColor.addColor(backgroundColor);
 		}
 
 		//calculate diffuse and specular
@@ -128,7 +133,7 @@ public class Scene {
 						intersect.getIntersectionNormal());
 				Ray reflectionRay = new Ray(ray.getRayVector(intersect.getDist()), reflectionDirection);	
 				List<RayHit> ReflectionIntersections = reflectionRay.rayIntersections(this.surfaces);
-				reflectionColor = getSurfaceColor(reflectionRay, ReflectionIntersections, level+1);
+				reflectionColor = getSurfaceColor(reflectionRay, ReflectionIntersections, level-1);
 				reflectionColor.multiplyColor(surface.getReflection());
 			}
 			totalColor.addColor(reflectionColor);
