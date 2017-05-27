@@ -23,7 +23,7 @@ public class Ray {
 		List<RayHit> intersections = new ArrayList<RayHit>();
 		
 		for (Surface surface : surfaces){
-			RayHit hit = surface.RayIntersect(this);
+			RayHit hit = surface.RayIntersect(this);		
 			if (hit != null){
 				intersections.add(hit);
 			}

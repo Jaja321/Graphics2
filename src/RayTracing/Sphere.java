@@ -31,12 +31,15 @@ public class Sphere extends Surface {
 		
 		double t1 = (tca - thc);
 		double t2 = (tca + thc);
+		
 		double t;
 		//since thc and tca are positive, only t1 can be negative
 		if(t1 < 0){
 			t = t2;
+			
 		}else{
 			t = Math.min(t1, t2);
+			
 		}
 		if(t==0){
 			return null;
