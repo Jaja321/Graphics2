@@ -90,40 +90,13 @@ public class Scene {
 		RayHit intersect = surfaces.get(this.maxRecursion - level);
 		Surface surface = intersect.getSurface();
 		Color totalColor = Color.getBlack();
-
-		// calculate diffuse and specular
-		for (Light light : this.lights) {
-			Color lightColor = Color.getBlack();
-
-			Vector lightDirection = Vector.subtract(light.getPosition(), ray.getRayVector(intersect.getDist()));
-			float lightDistance = lightDirection.norm();
-			lightDirection = lightDirection.divide(lightDistance);
-			Color lightDiffuse = surface.getDiffuse().multiplyColor(light.getColor());
-			float cos = Math.abs(Vector.dot(lightDirection, intersect.getIntersectionNormal()));
-			lightDiffuse = lightDiffuse.multiplyColor(cos);
-			lightColor = lightColor.addColor(lightDiffuse);
-
-			float temp = Vector.dot(lightDirection, intersect.getIntersectionNormal());
-			Vector lightReflection = intersect.getIntersectionNormal().multiply(temp);
-			lightReflection = lightReflection.multiply(2);
-			lightReflection = Vector.subtract(lightReflection, lightDirection);
-			Vector viewDirection = ray.getDir().multiply(-1);
-			cos = Math.abs(Vector.dot(lightReflection, viewDirection));
-			Color lightSpecular = surface.getSpecular().multiplyColor(light.getColor());
-			lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
-			lightSpecular = lightSpecular.multiplyColor(light.getSpecular());
-			lightColor = lightColor.addColor(lightSpecular);
-
-			lightColor.multiplyColor(1 - surface.getTransparency());
-
-			// Add soft shadows:
-			float softShadows = getSoftShadowsValue(light, intersect.getIntersectionPoint(), this.shadowRays);
-			if (softShadows == 0)
-				lightColor = lightColor.multiplyColor((1 - light.getShadow()));
-
-			totalColor = totalColor.addColor(lightColor);
+		float viewNormalSign;
+		if (Vector.dot(ray.getDir().multiply(-1),intersect.getIntersectionNormal()) >= 0){
+			viewNormalSign = 1;
+		}else{
+			viewNormalSign = -1;
 		}
-		
+
 		// calculate transparency (background) color
 		if (surface.getTransparency() > 0) {
 			Color backgroundColor;
@@ -135,7 +108,40 @@ public class Scene {
 			backgroundColor = backgroundColor.multiplyColor(surface.getTransparency());
 			totalColor = totalColor.addColor(backgroundColor);
 		}
+		
+		// calculate diffuse and specular color
+		for (Light light : this.lights) {
 
+			Vector lightDirection = Vector.subtract(light.getPosition(), intersect.getIntersectionPoint());
+			float lightDistance = lightDirection.norm();
+			lightDirection = lightDirection.divide(lightDistance);
+			Color lightDiffuse = surface.getDiffuse().multiplyColor(light.getColor());
+			float cos = Math.max(Vector.dot(lightDirection, intersect.getIntersectionNormal().multiply(viewNormalSign)),0);
+			lightDiffuse = lightDiffuse.multiplyColor(cos);
+
+			float temp = Vector.dot(lightDirection, intersect.getIntersectionNormal());
+			Vector lightReflection = intersect.getIntersectionNormal().multiply(temp);
+			lightReflection = lightReflection.multiply(2);
+			lightReflection = Vector.subtract(lightReflection, lightDirection);
+			Vector viewDirection = ray.getDir().multiply(-1);
+			cos = Math.max(Vector.dot(lightReflection, viewDirection),0);
+			Color lightSpecular = surface.getSpecular().multiplyColor(light.getColor());
+			lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
+			lightSpecular = lightSpecular.multiplyColor(light.getSpecular());
+			
+			Color lightColor = lightDiffuse.addColor(lightSpecular);
+
+			// Add soft shadows:
+			float softShadows = getSoftShadowsValue(light, intersect.getIntersectionPoint(), this.shadowRays);
+			if (softShadows == 0){
+				lightColor = lightColor.multiplyColor((1 - light.getShadow()));
+			}
+			
+			lightColor.multiplyColor(1 - surface.getTransparency());
+
+			totalColor = totalColor.addColor(lightColor);
+		}
+		
 		// calculate reflection color
 		Color materialReflection = surface.getReflection();
 		if (!materialReflection.equals(Color.getBlack())) {
@@ -171,12 +177,10 @@ public class Scene {
 		Vector temp = new Vector(normal.getX() + 1, normal.getY(), normal.getZ());
 		temp = temp.divide(temp.norm());
 		Vector up = Vector.cross(normal, temp);
-		Vector down = up.multiply(-1);
 		Vector right = Vector.cross(up, normal);
-		Vector left = right.multiply(-1);
-		Vector origin = Vector.add(lightPos, left.multiply(radius / 2f));
+		Vector origin = Vector.subtract(lightPos, right.multiply(radius / 2f));
 
-		origin = Vector.add(origin, down.multiply(radius / 2f));
+		origin = Vector.subtract(origin, up.multiply(radius / 2f));
 
 		Random rand = new Random();
 		int count = 0;
