@@ -90,11 +90,11 @@ public class Scene {
 		RayHit intersect = surfaces.get(this.maxRecursion - level);
 		Surface surface = intersect.getSurface();
 		Color totalColor = Color.getBlack();
-		float viewNormalSign;
+		float normalSign;
 		if (Vector.dot(ray.getDir().multiply(-1),intersect.getIntersectionNormal()) >= 0){
-			viewNormalSign = 1;
+			normalSign = 1;
 		}else{
-			viewNormalSign = -1;
+			normalSign = -1;
 		}
 
 		// calculate transparency (background) color
@@ -110,37 +110,41 @@ public class Scene {
 		}
 		
 		// calculate diffuse and specular color
-		for (Light light : this.lights) {
-
-			Vector lightDirection = Vector.subtract(light.getPosition(), intersect.getIntersectionPoint());
-			float lightDistance = lightDirection.norm();
-			lightDirection = lightDirection.divide(lightDistance);
-			Color lightDiffuse = surface.getDiffuse().multiplyColor(light.getColor());
-			float cos = Math.max(Vector.dot(lightDirection, intersect.getIntersectionNormal().multiply(viewNormalSign)),0);
-			lightDiffuse = lightDiffuse.multiplyColor(cos);
-
-			float temp = Vector.dot(lightDirection, intersect.getIntersectionNormal());
-			Vector lightReflection = intersect.getIntersectionNormal().multiply(temp);
-			lightReflection = lightReflection.multiply(2);
-			lightReflection = Vector.subtract(lightReflection, lightDirection);
-			Vector viewDirection = ray.getDir().multiply(-1);
-			cos = Math.max(Vector.dot(lightReflection, viewDirection),0);
-			Color lightSpecular = surface.getSpecular().multiplyColor(light.getColor());
-			lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
-			lightSpecular = lightSpecular.multiplyColor(light.getSpecular());
-			
-			Color lightColor = lightDiffuse.addColor(lightSpecular);
-
-			// Add soft shadows:
-			float softShadows = getSoftShadowsValue(light, intersect.getIntersectionPoint(), this.shadowRays);
-			if (softShadows == 0){
-				lightColor = lightColor.multiplyColor((1 - light.getShadow()));
+		if (surface.getTransparency() < 1){
+			for (Light light : this.lights) {
+	
+				Vector lightDirection = Vector.subtract(light.getPosition(), intersect.getIntersectionPoint());
+				lightDirection = lightDirection.divide(lightDirection.norm());
+				Color lightDiffuse = surface.getDiffuse().multiplyColor(light.getColor());
+				float cos = Math.max(Vector.dot(lightDirection, intersect.getIntersectionNormal().multiply(normalSign)),0);
+				lightDiffuse = lightDiffuse.multiplyColor(cos);
+	
+				float temp = Vector.dot(lightDirection, intersect.getIntersectionNormal());
+				Vector lightReflection = intersect.getIntersectionNormal().multiply(temp);
+				lightReflection = lightReflection.multiply(2);
+				lightReflection = Vector.subtract(lightReflection, lightDirection);
+				Vector viewDirection = ray.getDir().multiply(-1);
+				cos = Math.max(Vector.dot(lightReflection, viewDirection),0);
+				Color lightSpecular = surface.getSpecular().multiplyColor(light.getColor());
+				lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
+				lightSpecular = lightSpecular.multiplyColor(light.getSpecular());
+				
+				Color lightColor = lightDiffuse.addColor(lightSpecular);
+	
+				// Add soft shadows:
+				float softShadows = getSoftShadowsValue(light, intersect.getIntersectionPoint(), this.shadowRays);
+				if (softShadows == 0){
+					lightColor = lightColor.multiplyColor((1 - light.getShadow()));
+				}else{
+					float shadowFactor = softShadows + (1 - light.getShadow()) * (1 - softShadows);
+					lightColor = lightColor.multiplyColor(shadowFactor);
+				}				
+				lightColor = lightColor.multiplyColor(1 - surface.getTransparency());
+				
+				totalColor = totalColor.addColor(lightColor);
 			}
-			
-			lightColor.multiplyColor(1 - surface.getTransparency());
-
-			totalColor = totalColor.addColor(lightColor);
 		}
+		
 		
 		// calculate reflection color
 		Color materialReflection = surface.getReflection();
@@ -150,7 +154,6 @@ public class Scene {
 				reflectionColor = this.background;
 			} else {
 				Vector viewDirection = ray.getDir().multiply(-1);
-				float normalSign = (Vector.dot(viewDirection, intersect.getIntersectionNormal()) >= 0) ? 1 : -1;
 				Vector normal = intersect.getIntersectionNormal().multiply(normalSign);				
 				float reflectionScale = 2*Vector.dot(viewDirection, normal);
 				Vector reflectionDirection = normal.multiply(reflectionScale);
@@ -183,7 +186,7 @@ public class Scene {
 		origin = Vector.subtract(origin, up.multiply(radius / 2f));
 
 		Random rand = new Random();
-		int count = 0;
+		float count = 0;
 		for (int x = 0; x < N; x++) {
 			for (int y = 0; y < N; y++) {
 				float rand_x = rand.nextFloat();
@@ -200,16 +203,29 @@ public class Scene {
 				Ray ray = new Ray(intersectPos, rayDir);
 
 				List<RayHit> hits = ray.rayIntersections(this.surfaces);
+				
 				// System.out.println(this.surfaces.size());
-				if (hits.size() == 0)
+				if (hits.size() == 0){
 					count++;
+				}
 				else {
-					if (hits.get(0).getDist() > distance)
-						count++;
+					float shadowFactor = 0;
+					for (RayHit rayHit : hits){
+						if((rayHit.getDist() > distance)) {
+							count ++;
+							break;
+						}else if (rayHit.getSurface().getTransparency() > 0){
+							shadowFactor = (shadowFactor == 0 ? 1 : shadowFactor);
+							shadowFactor *= rayHit.getSurface().getTransparency();
+						}else{
+							break;
+						}
+					}
+					count += shadowFactor;
 				}
 			}
 		}
-		return ((float) count) / N;
+		return (count / (N*N));
 	}
 
 	public boolean successfulParse() {
