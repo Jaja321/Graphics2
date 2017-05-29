@@ -4,9 +4,9 @@ public class Color {
 	private float R, G, B;
 	
 	Color(float red, float green, float blue){
-		this.R = red;
-		this.G = green;
-		this.B = blue;
+		this.R = Math.max(0, Math.min(red, 1));
+		this.G = Math.max(0, Math.min(green, 1));;
+		this.B = Math.max(0, Math.min(blue, 1));;
 	}
 
 	public float getRed() {
@@ -24,7 +24,11 @@ public class Color {
 	}
 	
 	public Color addColor(Color other){
-		return new Color(this.R + other.R, this.G + other.G, this.B + other.B);
+		float newR = Math.min(this.R + other.R, 1);
+		float newG = Math.min(this.G + other.G, 1);
+		float newB = Math.min(this.B + other.B, 1);
+		
+		return new Color(newR, newG, newB);
 	}
 	
 	public Color multiplyColor(Color other){
@@ -32,7 +36,11 @@ public class Color {
 	}
 	
 	public Color multiplyColor(float num){
-		return new Color(this.R * num, this.G * num, this.B * num);
+		float newR = Math.min(this.R * num, 1);
+		float newG = Math.min(this.G * num, 1);
+		float newB = Math.min(this.B * num, 1);
+		
+		return new Color(newR, newG, newB);
 	}
 
 	public byte getRedByte() {
