@@ -15,35 +15,26 @@ public class Plane extends Surface {
 	}
 
 	public RayHit RayIntersect(Ray ray) {
-		double t = getIntersectionT(ray);
-
-		if (t > 0) {
-			Vector intersectionNormal;
-			if(Vector.dot(this.normal, ray.getDir())>0)
-				intersectionNormal = this.normal;
-			else{
-				intersectionNormal = this.normal.multiply(-1);
-			}
-			Vector intersectionPoint = ray.getRayVector(t);
-			return new RayHit(t, this, intersectionNormal, intersectionPoint);
-		} else {
-			return null;
-		}
-	}
-
-	public double getIntersectionT(Ray ray) {
 		float denominator = Vector.dot(ray.getDir(), this.normal);
 		if (denominator == 0) {
-			return -1;
+			return null;
 		}
 		float numerator = -Vector.dot(ray.getOrigin(), this.normal) + this.offset;
 
 		double t = numerator / denominator;
-		if (t < 0) {
-			return -1;
+		if (t <= 0) {
+			return null;
 		}
 
-		return t;
+		Vector intersectionNormal;
+		if(Vector.dot(this.normal, ray.getDir()) > 0){
+			intersectionNormal = this.normal;
+		}else{
+			intersectionNormal = this.normal.multiply(-1);
+		}
+		intersectionNormal = intersectionNormal.divide(intersectionNormal.norm());
+		Vector intersectionPoint = ray.getRayVector(t);
+		return new RayHit(t, this, intersectionNormal, intersectionPoint);
 	}
 
 	public static Plane paresPlane(String[] params) {
