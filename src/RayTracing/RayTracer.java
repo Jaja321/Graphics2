@@ -136,7 +136,7 @@ public class RayTracer {
 		r.close();
 		
 		String msg = this.scene.successfulParse();
-		if (!msg.equals("")) {
+		if (!msg.equals("\n")) {
 			throw new RayTracerException(msg);
 		}
 
