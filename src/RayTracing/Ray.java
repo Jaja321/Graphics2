@@ -5,17 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Ray {
-	private static final float EPSILON = 1/10000;
+	private static final float EPSILON = .000001f;
 	private Vector origin;
 	private Vector dir;
 	
 	Ray(Vector origin, Vector dir){
-		this.origin = origin.add(EPSILON);
+		this.origin = Vector.add(origin, dir.multiply(EPSILON));
 		this.dir = dir;
-	}
-	
-	Ray(float x, float y, float z, Vector dir){
-		this(new Vector(x,y,z), dir);
 	}
 	
 	public List<RayHit> rayIntersections(List<Surface> surfaces){
@@ -30,7 +26,6 @@ public class Ray {
 		}		
 		Collections.sort(intersections);
 		return intersections;
-
 	}
 	
 	public Vector getRayVector(double t){
@@ -43,22 +38,8 @@ public class Ray {
 		return origin;
 	}
 
-	public void setOrigin(Vector origin) {
-		this.origin = origin;
-	}
-
 	public Vector getDir() {
 		return dir;
 	}
 
-	public void setDir(Vector dir) {
-		this.dir = dir;
-	}
-	
-
-	@Override
-	public String toString() {
-		return "Ray [origin=" + origin + ", dir=" + dir + "]";
-	}	
-	
 }
