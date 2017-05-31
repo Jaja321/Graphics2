@@ -120,21 +120,23 @@ public class Scene {
 				Color lightDiffuse = surface.getDiffuse().multiplyColor(light.getColor());
 				float cos = Math.max(Vector.dot(lightDirection, normal.multiply(normalSign)),0);
 				lightDiffuse = lightDiffuse.multiplyColor(cos);
-	
-				float temp = Vector.dot(lightDirection, normal);
-				Vector lightReflection = normal.multiply(temp);
-				lightReflection = lightReflection.multiply(2);
-				lightReflection = Vector.subtract(lightReflection, lightDirection);
-				Vector viewDirection = ray.getDir().multiply(-1);
-				cos = Math.max(Vector.dot(lightReflection, viewDirection),0);
+				
 				Color lightSpecular = surface.getSpecular().multiplyColor(light.getColor());
-				lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
 				lightSpecular = lightSpecular.multiplyColor(light.getSpecular());
+				
+				float lightNormalSign = (Vector.dot(lightDirection, normal) >= 0) ? 1 : -1;
+				Vector speculaReflection = normal.multiply(lightNormalSign);
+				speculaReflection = speculaReflection.multiply(2 * Vector.dot(lightDirection, speculaReflection));
+				speculaReflection = Vector.subtract(speculaReflection, lightDirection);
+				speculaReflection = speculaReflection.divide(speculaReflection.norm());
+				
+				cos = Math.max(Vector.dot(speculaReflection, ray.getDir().multiply(-1)), 0);
+				lightSpecular = lightSpecular.multiplyColor((float) Math.pow(cos, surface.getPhong()));
 				
 				Color lightColor = lightDiffuse.addColor(lightSpecular);
 	
 				// Add soft shadows:
-				float softShadows = getSoftShadowsValue(light, intersect.getIntersectionPoint(), this.shadowRays);
+				float softShadows = getSoftShadowsValue(light, intersect, this.shadowRays);
 				float shadowFactor = softShadows + (1 - light.getShadow()) * (1 - softShadows);
 				lightColor = lightColor.multiplyColor(shadowFactor);
 
@@ -167,8 +169,9 @@ public class Scene {
 		return totalColor;
 	}
 
-	public float getSoftShadowsValue(Light light, Vector intersectPos, int N) {
+	public float getSoftShadowsValue(Light light, RayHit hitPoint, int N) {
 		Vector lightPos = light.getPosition();
+		Vector intersectPos = hitPoint.getIntersectionPoint();
 		float radius = light.getRadius();
 		float pixelSize = radius / N;
 
@@ -201,30 +204,30 @@ public class Scene {
 
 				List<RayHit> hits = ray.rayIntersections(this.surfaces);
 				
-				// System.out.println(this.surfaces.size());
 				if (hits.size() == 0){
 					count++;
 				}
 				else {
-					float shadowFactor = 0;
+					float shadowFactor = -1;
 					for (RayHit rayHit : hits){
-						if((rayHit.getDist() > distance)) {
+						if(rayHit.getSurface().equals(hitPoint.getSurface())){
+							continue;
+						}else if((rayHit.getDist() > distance)) {
 							count ++;
 							break;
 						}else if (rayHit.getSurface().getTransparency() > 0){
-							shadowFactor = (shadowFactor == 0 ? 1 : shadowFactor);
+							shadowFactor = (shadowFactor == -1 ? 1 : shadowFactor);
 							shadowFactor *= rayHit.getSurface().getTransparency();
 						}else{
 							break;
 						}
 					}
-					count += shadowFactor;
+					count += (shadowFactor == -1 ? 0 : shadowFactor);
 				}
 			}
 		}
 		return (count / (N*N));
 	}
-
 	public boolean successfulParse() {
 		boolean result = setMaterial();
 		result = (result && checkParams());
@@ -253,4 +256,5 @@ public class Scene {
 
 		return true;
 	}
+
 }
