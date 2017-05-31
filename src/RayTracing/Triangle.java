@@ -82,4 +82,39 @@ public class Triangle extends Surface {
 		return new Triangle(vertex1, vertex2, vertex3, materialIndex);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof Triangle)) {
+			return false;
+		}
+		
+		Triangle other = (Triangle) obj;
+		if ((this.trianglePlane == null) && (other.trianglePlane != null)) {
+			return false;
+		}
+		if ((this.vertex1 == null) && (other.vertex1 != null)) {
+			return false;
+		}
+		if ((this.vertex2 == null) && (other.vertex2 != null)) {
+			return false;
+		}
+		if ((this.vertex3 == null) && (other.vertex3 != null)) {
+			return false;
+		}
+		return ((this.trianglePlane.equals(other.trianglePlane)) && (this.vertex1.equals(other.vertex1))
+				&& (this.vertex2.equals(other.vertex2)) && (this.vertex3.equals(other.vertex3)));
+
+	}
+
+	@Override
+	public String toString() {
+		return "Triangle [vertex1=" + vertex1 + ", vertex2=" + vertex2 + ", vertex3=" + vertex3 + super.toString() + "]";
+	}
+
 }

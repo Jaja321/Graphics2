@@ -40,6 +40,27 @@ public abstract class Surface {
 		return this.material.getTransparency();
 	}
 	
-	public abstract RayHit RayIntersect(Ray ray);
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj){
+			return true;
+		}
+		if (obj == null){
+			return false;
+		}
+		if (!(obj instanceof Surface)){
+			return false;
+		}
+		Surface other = (Surface) obj;
+		return (materialIndex == other.materialIndex);
+	}
 	
+	@Override
+	public String toString() {
+		return ", materialIndex=" + materialIndex;
+	}
+	
+	public abstract RayHit RayIntersect(Ray ray);
+
+
 }

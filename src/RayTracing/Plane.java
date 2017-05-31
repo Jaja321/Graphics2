@@ -48,4 +48,28 @@ public class Plane extends Surface {
 		return new Plane(normal, offset, materialIndex);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof Plane)) {
+			return false;
+		}
+		Plane other = (Plane) obj;
+		if (normal == null && other.normal != null) {
+				return false;
+		}
+		
+		return (this.normal.equals(other.normal) && this.offset == other.offset);
+	}
+
+	@Override
+	public String toString() {
+		return "Plane [normal=" + normal + ", offset=" + offset + super.toString() + "]";
+	}
+
 }

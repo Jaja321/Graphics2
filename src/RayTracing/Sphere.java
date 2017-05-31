@@ -3,7 +3,6 @@ package RayTracing;
 public class Sphere extends Surface {
 	private Vector center;
 	private float radius;
-	private Vector NormalAtIntersect = null;
 	
 	public Sphere(Vector center, float radius, int index, Material material){
 		super(index, material);
@@ -16,7 +15,6 @@ public class Sphere extends Surface {
 		}
 		
 	public RayHit RayIntersect(Ray ray){
-		this.NormalAtIntersect = null;
 		
 		Vector vectorL = Vector.subtract(this.center, ray.getOrigin());
 		float tca = Vector.dot(vectorL, ray.getDir());
@@ -69,9 +67,27 @@ public class Sphere extends Surface {
 		return new Sphere(center,radius, materialIndex);
 	}
 
-	public Vector getNormalAtIntersect() {
-		return NormalAtIntersect;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof Sphere)) {
+			return false;
+		}
+		Sphere other = (Sphere) obj;
+		if (center == null && other.center != null) {
+				return false;
+		}
+		return (this.center.equals(other.center)) && (this.radius==other.radius);
 	}
 
+	@Override
+	public String toString() {
+		return "Sphere [center=" + center + ", radius=" + radius + super.toString() + "]";
+	}
 
 }
