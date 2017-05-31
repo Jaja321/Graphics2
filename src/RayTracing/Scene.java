@@ -228,33 +228,56 @@ public class Scene {
 		}
 		return (count / (N*N));
 	}
-	public boolean successfulParse() {
-		boolean result = setMaterial();
-		result = (result && checkParams());
 
-		return result;
+	public String successfulParse() {
+		String ErrorString = "\n";
+		ErrorString = ErrorString.concat(setMaterial());
+		ErrorString = ErrorString.concat(checkParams());
+
+		return ErrorString;
 	}
 
-	private boolean setMaterial() {
+	private String setMaterial() {
+		if(this.materials.size() == 0){
+			return "ERROR no materials found for scene!\n";
+		}
+		String ErrorString = "";
 		for (Surface surface : this.surfaces) {
 			int materialIndex = surface.getMaterialIndex();
-			if (materialIndex < 0 || materialIndex > this.materials.size()) {
-				return false;
+			if (materialIndex < 0 || materialIndex > this.materials.size() - 1) {
+				ErrorString = ErrorString.concat("ERROR wrong material index for: " + surface + "\n");
+			}else{
+				Material material = getSurfaceMaterial(materialIndex);
+				surface.setMaterial(material);
 			}
-			Material material = getSurfaceMaterial(materialIndex);
-			surface.setMaterial(material);
 		}
-		return true;
+		return ErrorString;
 	}
 
-	private boolean checkParams() {
-		if (this.camera == null || this.background == null || this.shadowRays == -1 || this.maxRecursion == -1
-				|| this.superSampling == -1 || this.materials.size() == 0 || this.surfaces.size() == 0
-				|| this.lights.size() == 0) {
-			return false;
+	private String checkParams() {
+		String ErrorString = "";
+		if(this.camera == null){
+			ErrorString = ErrorString.concat("ERROR no camera found!\n");
+		}
+		if(this.background == null){
+			ErrorString = ErrorString.concat("ERROR background color not set!\n");
+		}
+		if( this.shadowRays == -1){
+			ErrorString = ErrorString.concat("ERROR number of shadow rays not set!\n");
+		}
+		if(this.maxRecursion == -1){
+			ErrorString = ErrorString.concat("ERROR max recursion level not set!\n");
+		}
+		if(this.superSampling == -1){
+			ErrorString = ErrorString.concat("ERROR super sampling level not set!\n");
+		}
+		if(this.surfaces.size() == 0){
+			ErrorString = ErrorString.concat("ERROR no surfaces found!\n");
+		}
+		if(this.lights.size() == 0){
+			ErrorString = ErrorString.concat("ERROR no lights found!\n");
 		}
 
-		return true;
+		return ErrorString;
 	}
-
 }

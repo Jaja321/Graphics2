@@ -133,13 +133,13 @@ public class RayTracer {
 				}
 			}
 		}
-		if (!this.scene.successfulParse()) {
-			String msg = "Error! scene is invalid";
-			r.close();
+		r.close();
+		
+		String msg = this.scene.successfulParse();
+		if (!msg.equals("")) {
 			throw new RayTracerException(msg);
 		}
 
-		r.close();
 		System.out.println("Finished parsing scene file " + sceneFileName);
 
 	}
