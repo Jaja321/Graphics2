@@ -58,26 +58,34 @@ public class Camera {
 	}
 
 	public static Camera parseCamera(String[] params, float aspectRatio) {
-		float posX = Float.parseFloat(params[0]);
-		float posY = Float.parseFloat(params[1]);
-		float posZ = Float.parseFloat(params[2]);
-		Vector position = new Vector(posX, posY, posZ);
+		if(params.length < 11){
+			return null;
+		}
+		try{
+			float posX = Float.parseFloat(params[0]);
+			float posY = Float.parseFloat(params[1]);
+			float posZ = Float.parseFloat(params[2]);
+			Vector position = new Vector(posX, posY, posZ);
 
-		float lookAtX = Float.parseFloat(params[3]);
-		float lookAtY = Float.parseFloat(params[4]);
-		float lookAtZ = Float.parseFloat(params[5]);
-		Vector lookAt = new Vector(lookAtX, lookAtY, lookAtZ);
+			float lookAtX = Float.parseFloat(params[3]);
+			float lookAtY = Float.parseFloat(params[4]);
+			float lookAtZ = Float.parseFloat(params[5]);
+			Vector lookAt = new Vector(lookAtX, lookAtY, lookAtZ);
 
-		float upVectorX = Float.parseFloat(params[6]);
-		float upVectorY = Float.parseFloat(params[7]);
-		float upVectorZ = Float.parseFloat(params[8]);
-		Vector upVector = new Vector(upVectorX, upVectorY, upVectorZ);
+			float upVectorX = Float.parseFloat(params[6]);
+			float upVectorY = Float.parseFloat(params[7]);
+			float upVectorZ = Float.parseFloat(params[8]);
+			Vector upVector = new Vector(upVectorX, upVectorY, upVectorZ);
 
-		float distance = Float.parseFloat(params[9]);
-		float width = Float.parseFloat(params[10]);
-		float height = width / aspectRatio;
+			float distance = Float.parseFloat(params[9]);
+			float width = Float.parseFloat(params[10]);
+			float height = width / aspectRatio;
 
-		return new Camera(position, lookAt, upVector, distance, width, height);
+			return new Camera(position, lookAt, upVector, distance, width, height);
+		}catch (NumberFormatException e){
+			return null;
+		}
+
 	}
 
 	// Need to add super-sampling support.

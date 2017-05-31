@@ -38,14 +38,20 @@ public class Plane extends Surface {
 	}
 
 	public static Plane paresPlane(String[] params) {
-		float normalX = Float.parseFloat(params[0]);
-		float normalY = Float.parseFloat(params[1]);
-		float normalZ = Float.parseFloat(params[2]);
-		Vector normal = new Vector(normalX, normalY, normalZ);
-		float offset = Float.parseFloat(params[3]);
-		int materialIndex = Integer.parseInt(params[4]) - 1;
-
-		return new Plane(normal, offset, materialIndex);
+		try{
+			float normalX = Float.parseFloat(params[0]);
+			float normalY = Float.parseFloat(params[1]);
+			float normalZ = Float.parseFloat(params[2]);
+			Vector normal = new Vector(normalX, normalY, normalZ);
+			float offset = Float.parseFloat(params[3]);
+			int materialIndex = Integer.parseInt(params[4]) - 1;
+	
+			return new Plane(normal, offset, materialIndex);
+		}catch (NumberFormatException e){
+			return null;
+		}catch (ArrayIndexOutOfBoundsException e){
+			return null;
+		}
 	}
 
 	@Override

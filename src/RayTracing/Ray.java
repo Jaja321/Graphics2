@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Ray {
-	private static final float EPSILON = .000001f;
+	private static final float EPSILON = .0001f;
 	private Vector origin;
 	private Vector dir;
 	

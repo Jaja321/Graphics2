@@ -20,8 +20,9 @@ public class Triangle extends Surface {
 		Vector u = Vector.subtract(this.vertex2, this.vertex1);
 		Vector v = Vector.subtract(this.vertex3, this.vertex1);
 		Vector normal = Vector.cross(u, v);
+		normal = normal.divide(normal.norm());
 		float offset = Vector.dot(normal, this.vertex1);
-		this.trianglePlane = new Plane(normal, -offset, this.getMaterialIndex(), this.getMaterial());
+		this.trianglePlane = new Plane(normal, offset, this.getMaterialIndex(), this.getMaterial());
 	}
 	
 	public RayHit RayIntersect(Ray ray){
@@ -30,12 +31,12 @@ public class Triangle extends Surface {
 			return null;
 		}
 		
-		Vector intersectPoint = ray.getRayVector(hit.getDist());
+		Vector intersectPoint = hit.getIntersectionPoint();
 		if(!this.isPointInTriangle(intersectPoint)){
 			return null;
 		}
 		
-		return new RayHit(hit.getDist(), this, hit.getIntersectionNormal(), hit.getIntersectionPoint());
+		return new RayHit(hit.getDist(), this, hit.getIntersectionNormal(), intersectPoint);
 	}
 	
 	public boolean isPointInTriangle(Vector point){
@@ -62,24 +63,30 @@ public class Triangle extends Surface {
 		return true;
 	}
 	public static Triangle paresTriangle(String[] params) {
-		float vertex1X = Float.parseFloat(params[0]);
-		float vertex1Y = Float.parseFloat(params[1]);
-		float vertex1Z = Float.parseFloat(params[2]);
-		Vector vertex1 = new Vector(vertex1X, vertex1Y, vertex1Z);
-
-		float vertex2X = Float.parseFloat(params[3]);
-		float vertex2Y = Float.parseFloat(params[4]);
-		float vertex2Z = Float.parseFloat(params[5]);
-		Vector vertex2 = new Vector(vertex2X, vertex2Y, vertex2Z);
-
-		float vertex3X = Float.parseFloat(params[6]);
-		float vertex3Y = Float.parseFloat(params[7]);
-		float vertex3Z = Float.parseFloat(params[8]);
-		Vector vertex3 = new Vector(vertex3X, vertex3Y, vertex3Z);
+		try{
+			float vertex1X = Float.parseFloat(params[0]);
+			float vertex1Y = Float.parseFloat(params[1]);
+			float vertex1Z = Float.parseFloat(params[2]);
+			Vector vertex1 = new Vector(vertex1X, vertex1Y, vertex1Z);
+	
+			float vertex2X = Float.parseFloat(params[3]);
+			float vertex2Y = Float.parseFloat(params[4]);
+			float vertex2Z = Float.parseFloat(params[5]);
+			Vector vertex2 = new Vector(vertex2X, vertex2Y, vertex2Z);
+	
+			float vertex3X = Float.parseFloat(params[6]);
+			float vertex3Y = Float.parseFloat(params[7]);
+			float vertex3Z = Float.parseFloat(params[8]);
+			Vector vertex3 = new Vector(vertex3X, vertex3Y, vertex3Z);
 		
-		int materialIndex = Integer.parseInt(params[9])-1;
+			int materialIndex = Integer.parseInt(params[9])-1;
+			return new Triangle(vertex1, vertex2, vertex3, materialIndex);
 
-		return new Triangle(vertex1, vertex2, vertex3, materialIndex);
+		}catch (NumberFormatException e){
+			return null;
+		}catch (ArrayIndexOutOfBoundsException e){
+			return null;
+		}
 	}
 
 	@Override

@@ -35,9 +35,10 @@ public class RayTracer {
 			tracer.imageWidth = 500;
 			tracer.imageHeight = 500;
 
-			if (args.length < 2)
+			if (args.length < 2){
 				throw new RayTracerException(
 						"Not enough arguments provided. Please specify an input scene file and an output image file for rendering.");
+			}
 
 			String sceneFileName = args[0];
 			String outputFileName = args[1];
@@ -91,43 +92,44 @@ public class RayTracer {
 
 				if (code.equals("cam")) {
 					Camera cam = Camera.parseCamera(params, imageWidth / imageHeight);
-					this.scene.setCamera(cam);
-
-					System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
+					if(cam != null && this.scene.getCamera() == null){
+						this.scene.setCamera(cam);
+						System.out.println(String.format("Parsed camera parameters (line %d)", lineNum));
+					}
 				} else if (code.equals("set")) {
 					this.scene.setProperties(params);
 
 					System.out.println(String.format("Parsed general settings (line %d)", lineNum));
 				} else if (code.equals("mtl")) {
 					Material material = Material.parseMaterial(params);
-
-					this.scene.addMaterial(material);
-
-					System.out.println(String.format("Parsed material (line %d)", lineNum));
+					if(material != null){
+						this.scene.addMaterial(material);
+						System.out.println(String.format("Parsed material (line %d)", lineNum));
+					}
 				} else if (code.equals("sph")) {
 					Surface sphere = Sphere.paresSphere(params);
-
-					this.scene.addSurface(sphere);
-
-					System.out.println(String.format("Parsed sphere (line %d)", lineNum));
+					if (sphere != null){
+						this.scene.addSurface(sphere);
+						System.out.println(String.format("Parsed sphere (line %d)", lineNum));
+					}
 				} else if (code.equals("pln")) {
 					Surface plane = Plane.paresPlane(params);
-
-					this.scene.addSurface(plane);
-
-					System.out.println(String.format("Parsed plane (line %d)", lineNum));
+					if (plane != null){
+						this.scene.addSurface(plane);
+						System.out.println(String.format("Parsed plane (line %d)", lineNum));
+					}
 				} else if (code.equals("trg")) {
 					Surface triangle = Triangle.paresTriangle(params);
-
-					this.scene.addSurface(triangle);
-
-					System.out.println(String.format("Parsed cylinder (line %d)", lineNum));
+					if (triangle != null) {
+						this.scene.addSurface(triangle);
+						System.out.println(String.format("Parsed cylinder (line %d)", lineNum));
+					}
 				} else if (code.equals("lgt")) {
 					Light light = Light.parseLight(params);
-
-					this.scene.addLight(light);
-
-					System.out.println(String.format("Parsed light (line %d)", lineNum));
+					if(light != null){
+						this.scene.addLight(light);
+						System.out.println(String.format("Parsed light (line %d)", lineNum));
+					}
 				} else {
 					System.out.println(String.format("ERROR: Did not recognize object: %s (line %d)", code, lineNum));
 				}

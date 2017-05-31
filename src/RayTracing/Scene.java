@@ -16,14 +16,22 @@ public class Scene {
 	private int superSampling = -1;
 
 	public void setProperties(String[] params) {
-		float colorR = Float.parseFloat(params[0]);
-		float colorG = Float.parseFloat(params[1]);
-		float colorB = Float.parseFloat(params[2]);
-		this.background = new Color(colorR, colorG, colorB);
+		try{		
+			float colorR = Float.parseFloat(params[0]);
+			float colorG = Float.parseFloat(params[1]);
+			float colorB = Float.parseFloat(params[2]);
+			this.background = new Color(colorR, colorG, colorB);
+	
+			this.shadowRays = Integer.parseInt(params[3]);
+			this.maxRecursion = Integer.parseInt(params[4]);
+			this.superSampling = Integer.parseInt(params[5]);
 
-		this.shadowRays = Integer.parseInt(params[3]);
-		this.maxRecursion = Integer.parseInt(params[4]);
-		this.superSampling = Integer.parseInt(params[5]);
+		}catch (NumberFormatException e){
+			return;
+		}catch (ArrayIndexOutOfBoundsException e){
+			return;
+		}
+
 	}
 
 	public void addMaterial(Material material) {

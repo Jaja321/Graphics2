@@ -56,15 +56,21 @@ public class Sphere extends Surface {
 	}
 
 	public static Sphere paresSphere(String[] params) {
-		float centerX = Float.parseFloat(params[0]);
-		float centerY = Float.parseFloat(params[1]);
-		float centerZ = Float.parseFloat(params[2]);
-		Vector center = new Vector(centerX, centerY, centerZ);
-		
-		float radius = Float.parseFloat(params[3]);
-		int materialIndex = Integer.parseInt(params[4])-1;
-
-		return new Sphere(center,radius, materialIndex);
+		try{
+			float centerX = Float.parseFloat(params[0]);
+			float centerY = Float.parseFloat(params[1]);
+			float centerZ = Float.parseFloat(params[2]);
+			Vector center = new Vector(centerX, centerY, centerZ);
+			
+			float radius = Float.parseFloat(params[3]);
+			int materialIndex = Integer.parseInt(params[4])-1;
+	
+			return new Sphere(center,radius, materialIndex);
+		}catch (NumberFormatException e){
+			return null;
+		}catch (ArrayIndexOutOfBoundsException e){
+			return null;
+		}
 	}
 
 	@Override
